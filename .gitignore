@@ -1,0 +1,29 @@
+# Environment and secrets
+.env*
+*.env
+supabase.txt
+credentials*.json
+*.pem
+*.key
+
+# Claude workspace files
+.claude/
+
+# Sample data with personal info (CSV exports, notebooks with real data)
+financas/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Jupyter notebooks with potentially sensitive data
+*.ipynb
