@@ -9,10 +9,10 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-600">
-              <span className="text-lg font-bold text-white">R</span>
+              <span className="text-lg font-bold text-white">P</span>
             </div>
             <span className="text-xl font-semibold text-gray-900">
-              Recibos Verdes
+              Painel dos Recibos
             </span>
           </div>
           <nav className="hidden items-center gap-6 md:flex">
@@ -432,10 +432,10 @@ export default function Home() {
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             <div className="flex items-center gap-2">
               <div className="flex h-6 w-6 items-center justify-center rounded bg-green-600">
-                <span className="text-sm font-bold text-white">R</span>
+                <span className="text-sm font-bold text-white">P</span>
               </div>
               <span className="text-sm text-gray-600">
-                Recibos Verdes Dashboard
+                Painel dos Recibos
               </span>
             </div>
             <p className="text-sm text-gray-500">

@@ -8,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Recibos Verdes Dashboard",
-  description: "Visualize e analise os seus recibos verdes exportados do Portal das Finanças",
+  title: "Painel dos Recibos - Visualize os seus recibos verdes",
+  description: "Importe o ficheiro SIRE do Portal das Finanças e veja gráficos de rendimento por mês e cliente. A forma mais fácil de analisar os seus recibos verdes.",
 };
 
 export default function RootLayout({

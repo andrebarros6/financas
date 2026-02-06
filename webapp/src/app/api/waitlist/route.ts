@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getResend, FROM_EMAIL } from "@/lib/email/resend";
+import { getWaitlistConfirmationEmail } from "@/lib/email/templates/waitlist-confirmation";
 
 export async function POST(request: Request) {
   try {
@@ -18,13 +20,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email inválido" }, { status: 400 });
     }
 
-    const supabase = await createClient();
+    // Use admin client to bypass RLS for public waitlist
+    const supabase = createAdminClient();
 
     // Insert into waitlist
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
-      .from("waitlist")
-      .insert({ email });
+    const { error } = await (supabase as any).from("waitlist").insert({ email });
 
     if (error) {
       // Handle duplicate email
@@ -41,14 +42,27 @@ export async function POST(request: Request) {
       );
     }
 
-    // TODO: Send confirmation email via Resend
-    // This will be implemented when Resend credentials are available
+    // Send confirmation email
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const { subject, html } = getWaitlistConfirmationEmail({ email, baseUrl });
+    const { error: emailError } = await getResend().emails.send({
+      from: FROM_EMAIL,
+      replyTo: "paineldosrecibos@barrosbuilds.com",
+      to: email,
+      subject,
+      html,
+    });
+
+    if (emailError) {
+      // Log but don't fail - the user is already on the waitlist
+      console.error("Failed to send confirmation email:", emailError);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Waitlist error:", err);
+    console.error("Waitlist error:", err instanceof Error ? err.message : err);
     return NextResponse.json(
-      { error: "Erro interno do servidor" },
+      { error: err instanceof Error ? err.message : "Erro interno do servidor" },
       { status: 500 }
     );
   }

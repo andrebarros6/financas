@@ -1,12 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock the Supabase client
+// Mock Resend - must be before other mocks that use vi.fn()
+vi.mock("@/lib/email/resend", () => ({
+  getResend: () => ({ emails: { send: vi.fn(() => Promise.resolve({ error: null })) } }),
+  FROM_EMAIL: "test@example.com",
+}));
+
+// Mock the Supabase admin client
 const mockInsert = vi.fn();
 const mockFrom = vi.fn(() => ({ insert: mockInsert }));
-const mockCreateClient = vi.fn(() => ({ from: mockFrom }));
 
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: () => mockCreateClient(),
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: () => ({ from: mockFrom }),
 }));
 
 // Import the route handler after mocking
