@@ -334,35 +334,57 @@ Add third tier to make €4.99 Premium feel like obvious value:
 
 **Development approach**: Feature-by-feature with validation testing after each feature.
 
-### Phase 1: Foundation
-1. Set up Next.js project with TypeScript
+### Phase 1: Foundation ✅ COMPLETED
+1. ✅ Set up Next.js project with TypeScript
    - **Test**: App runs locally, displays welcome page
-2. Configure Supabase (database + auth)
+2. ✅ Configure Supabase (database + auth)
    - **Test**: Can connect to Supabase from app
-3. Create database schema
+3. ✅ Create database schema
    - **Test**: Tables created, can insert/query test data
-4. Implement login flow (email + Google)
+4. ✅ Implement login flow (email + Google)
    - **Test**: Can sign up, login, logout with email and Google
+   - **Note**: Google OAuth configured and working
 
-### Phase 2: Core Features
-1. Build CSV parser for SIRE format
+### Phase 2: Core Features ✅ COMPLETED
+1. ✅ Build CSV parser for SIRE format
    - **Test**: Parse sample CSV, verify all fields extracted correctly
-2. Create upload interface with drag-and-drop
+   - Handles UTF-8 encoding with BOM
+   - Converts European decimal format (1.391,61 → 1391.61)
+   - Validates 20 required columns
+   - Filters out cancelled receipts (Situação: Anulado)
+2. ✅ Create upload interface with drag-and-drop
    - **Test**: Upload CSV, see parsed data preview
-3. Implement receipt storage and retrieval
+   - Shows preview with sample receipt before import
+   - Displays parse statistics (total processed, valid, cancelled)
+3. ✅ Implement receipt storage and retrieval
    - **Test**: Upload saves to DB, refresh shows saved data
-4. Build Chart.js visualizations (monthly + client)
+   - Uses service role client to bypass RLS for imports
+   - Handles duplicate receipts via ATCUD unique constraint
+   - Updates existing receipts on re-import
+4. ✅ Build Chart.js visualizations (monthly + client)
    - **Test**: Charts render with real uploaded data
+   - Monthly Income Bar Chart (current year)
+   - Top Clients Bar Chart (configurable limit)
+   - Summary statistics cards (total receipts, total amount, unique clients)
 
-### Phase 3: Polish & Premium
-1. Add receipt editing functionality
-   - **Test**: Edit a receipt, verify change persists
-2. Implement Stripe integration
+### Phase 3: Subscription & Monetization 🚧 IN PROGRESS
+1. ⏳ Add receipt list page
+   - **Test**: View all receipts in sortable/filterable table
+   - **Status**: Not yet implemented
+2. ⏳ Implement Stripe integration
    - **Test**: Complete test subscription flow
-3. Build premium features (multi-year, exports)
+   - Setup Stripe API keys
+   - Create subscription checkout flow
+   - Build webhook handler for subscription events
+3. ⏳ Build free tier restrictions
    - **Test**: Free user blocked from 2nd year, premium user allowed
-4. Create landing page with demo
-   - **Test**: Demo loads with sample data, CTA links work
+   - Implement year limit check (1 year for free tier)
+   - Show upgrade prompts when limits reached
+4. ⏳ Create settings page
+   - **Test**: View subscription status, manage billing
+   - Display current plan (Free/Pro)
+   - Link to Stripe customer portal
+   - Data deletion option
 
 ### Phase 4: Launch
 1. Add Google Analytics
@@ -487,6 +509,48 @@ export function ReceiptList({ receipts, onSelect }: Props) {
 /types
   /receipt.ts               # TypeScript types
 ```
+
+---
+
+## Implementation Notes & Technical Decisions
+
+### Database & Authentication
+- **Supabase Setup**: Using Supabase for PostgreSQL database and authentication
+  - Project URL: `covoqwruvmckbjsyfckv.supabase.co`
+  - RLS policies configured for row-level security
+  - Service role client used for import operations (bypasses RLS after auth verification)
+- **User Profile Auto-Creation**: Trigger `on_auth_user_created` automatically creates user profiles when signing up
+  - **Issue Found**: Users who signed up before migration had auth accounts but no profiles
+  - **Solution**: Created debug endpoint `/api/debug/create-profile` to manually create missing profiles
+
+### CSV Import & Parsing
+- **Encoding**: Handles UTF-8 with BOM character properly
+- **Decimal Format**: Converts European format `1.391,61` to `1391.61`
+- **Date Parsing**: Expects ISO format `YYYY-MM-DD` from SIRE exports
+- **Duplicate Handling**:
+  - Uses ATCUD as unique identifier per user
+  - On duplicate: updates existing receipt instead of failing
+  - Returns detailed feedback: "X novos recibos importados, Y atualizados"
+- **Validation**: Verifies all 20 required columns are present with correct Portuguese headers
+
+### Authentication Flow Issues & Fixes
+- **Issue**: `supabase.auth.getUser()` hanging indefinitely on client side
+  - **Root Cause**: Multiple Supabase client instances being created
+  - **Solution**: Implemented singleton pattern with `useMemo` in `useAuth` hook
+  - **Workaround**: Added 10-second timeout to prevent infinite loading
+- **Suspense Boundary**: Added Suspense wrapper to dashboard page for `useSearchParams` compatibility with Next.js 15
+
+### Row Level Security (RLS)
+- **Initial Issue**: Imports failing with permission denied error (PostgreSQL 42501)
+  - **Root Cause**: Server-side auth context not propagating to RLS policies
+  - **Solution**: Use service role client for database operations after verifying user with regular client
+  - **Pattern**: Auth check with regular client, database ops with service client
+
+### Testing Results
+- ✅ **Test 1: Duplicate Import** - Successfully updates existing receipts
+- ⚠️ **Test 2: Receipts List Page** - Not yet implemented
+- ⚠️ **Test 3: Error Handling** - Invalid CSVs show errors, but could be more user-friendly
+- ✅ **Test 4: Sign Out/In Flow** - Working correctly, data persists across sessions
 
 ---
 

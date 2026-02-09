@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
@@ -22,7 +22,7 @@ export function useAuth() {
     error: null,
   });
 
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchProfile = useCallback(
     async (userId: string): Promise<User | null> => {
@@ -39,20 +39,34 @@ export function useAuth() {
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
+      console.log('[useAuth] Getting initial session...');
       try {
+        // Add timeout to prevent infinite hanging
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Auth timeout after 10s')), 10000)
+        );
+
+        const authPromise = supabase.auth.getUser();
+
         const {
           data: { user },
           error,
-        } = await supabase.auth.getUser();
+        } = await Promise.race([authPromise, timeoutPromise]) as any;
+
+        console.log('[useAuth] getUser result:', { user: user?.id, error });
         if (error) throw error;
 
         if (user) {
+          console.log('[useAuth] Fetching profile for user:', user.id);
           const profile = await fetchProfile(user.id);
+          console.log('[useAuth] Profile fetched:', profile);
           setState({ user, profile, loading: false, error: null });
         } else {
+          console.log('[useAuth] No user, setting loading to false');
           setState({ user: null, profile: null, loading: false, error: null });
         }
       } catch (err) {
+        console.error('[useAuth] Error:', err);
         setState({
           user: null,
           profile: null,
