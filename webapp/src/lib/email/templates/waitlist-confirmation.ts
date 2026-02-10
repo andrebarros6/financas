@@ -59,6 +59,18 @@ export function getWaitlistConfirmationEmail({ email, baseUrl }: WaitlistEmailPa
                 O seu email foi adicionado à nossa lista de espera. Vamos avisá-lo assim que o Painel dos Recibos estiver disponível para testar.
               </p>
 
+              <!-- Reply Request Section -->
+              <div style="margin: 24px 0; padding: 20px; background-color: #eff6ff; border-radius: 12px; border: 1px solid #bfdbfe;">
+                <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #1e40af;">
+                  💬 A sua opinião conta!
+                </h3>
+                <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #4b5563;">
+                  Tem alguma sugestão ou funcionalidade que gostaria de ver no dashboard?
+                  <strong>Responda diretamente a este email</strong> — lemos todas as mensagens e a sua opinião ajuda-nos a construir um produto melhor.
+                </p>
+              </div>
+
+
               <!-- Poll Section -->
               <div style="margin: 24px 0; padding: 20px; background-color: #f0fdf4; border-radius: 12px; border: 1px solid #bbf7d0;">
                 <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #166534;">
@@ -70,16 +82,6 @@ export function getWaitlistConfirmationEmail({ email, baseUrl }: WaitlistEmailPa
                 ${pollButtonsHtml}
               </div>
 
-              <!-- Reply Request Section -->
-              <div style="margin: 24px 0; padding: 20px; background-color: #eff6ff; border-radius: 12px; border: 1px solid #bfdbfe;">
-                <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #1e40af;">
-                  💬 A sua opinião conta!
-                </h3>
-                <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #4b5563;">
-                  Tem alguma sugestão ou funcionalidade que gostaria de ver no dashboard?
-                  <strong>Responda diretamente a este email</strong> — lemos todas as mensagens e a sua opinião ajuda-nos a construir um produto melhor.
-                </p>
-              </div>
 
               <p style="margin: 24px 0 0; font-size: 16px; line-height: 1.6; color: #4b5563;">
                 Estamos a trabalhar para criar a melhor forma de visualizar e analisar os seus recibos verdes. Fique atento à sua caixa de entrada!
