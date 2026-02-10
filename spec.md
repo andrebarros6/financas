@@ -2,7 +2,7 @@
 
 ## Overview
 
-A web application for Portuguese independent workers (trabalhadores independentes) to visualize and analyze their receipt data exported from the AT (Autoridade Tributária) portal. Users upload their SIRE CSV files and see interactive dashboards showing income evolution by month and client.
+**Business Intelligence for Portuguese Freelancers.** A web application that gives trabalhadores independentes the data-driven insights they need to grow their business. Users upload their SIRE CSV files from the AT (Autoridade Tributária) portal and get interactive dashboards showing income evolution by month, client rankings, seasonality patterns, and growth trends — turning raw receipt data into actionable business decisions.
 
 ---
 
@@ -17,6 +17,9 @@ Portuguese freelancers (trabalhadores independentes) issue receipts every month 
 
 ### The Core Idea
 **"O que é medido é gerido"** (What is measured is managed) — freelancers need to measure their income to manage their business. The product turns their existing receipt data (which they already have) into actionable insights.
+
+### Product Positioning
+**Business Intelligence for Portuguese freelancers.** The same kind of data-driven decision-making that companies use — client revenue analysis, seasonality detection, growth tracking — made simple and accessible for independent workers. No spreadsheets, no accounting degree required.
 
 ### The Solution
 Transform the SIRE CSV export from Portal das Finanças into clear, interactive dashboards — so freelancers can understand where their money comes from, spot trends, and make better decisions. The goal: **earn more by working smarter**.
