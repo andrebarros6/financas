@@ -37,7 +37,8 @@ async function handleRequest() {
     }
 
     // Create profile
-    const { data: newProfile, error: insertError } = await serviceSupabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: newProfile, error: insertError } = await (serviceSupabase as any)
       .from('users')
       .insert({
         id: user.id,
