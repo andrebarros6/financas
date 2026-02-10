@@ -1,16 +1,26 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Routes that require authentication
+// Routes that require authentication (redirect to landing page if not logged in)
 const protectedRoutes = ["/dashboard"];
 
-// Routes only for unauthenticated users
-const authRoutes = ["/login", "/signup"];
+// Routes locked during waitlist phase (redirect to landing page)
+const lockedRoutes = ["/login", "/signup"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
+
+  const pathname = request.nextUrl.pathname;
+
+  // Block login/signup during waitlist-only phase
+  const isLockedRoute = lockedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+  if (isLockedRoute) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,22 +50,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
-
   // Check if accessing a protected route without being authenticated
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
   if (isProtectedRoute && !user) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // Redirect authenticated users away from auth pages
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-  if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return supabaseResponse;
