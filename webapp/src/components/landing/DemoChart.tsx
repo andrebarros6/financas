@@ -36,7 +36,7 @@ export function DemoChart({ className = "" }: DemoChartProps) {
           Rendimento Mensal
         </h3>
         <span className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-          2025
+          2026
         </span>
       </div>
 

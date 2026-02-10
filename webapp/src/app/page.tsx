@@ -17,16 +17,16 @@ export default function Home() {
           </div>
           <nav className="hidden items-center gap-6 md:flex">
             <a
-              href="#funcionalidades"
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Funcionalidades
-            </a>
-            <a
               href="#como-funciona"
               className="text-sm text-gray-600 hover:text-gray-900"
             >
               Como Funciona
+            </a>
+            <a
+              href="#funcionalidades"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Funcionalidades
             </a>
             <a
               href="#precos"
@@ -46,13 +46,17 @@ export default function Home() {
               Em breve
             </div>
             <h1 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
-              Visualize os seus{" "}
-              <span className="text-green-600">recibos verdes</span>
+              Passas recibos todos os meses. Mas sabes quem te faz{" "}
+              <span className="text-green-600">ganhar mais</span>?
             </h1>
-            <p className="mb-8 text-lg text-gray-600">
-              Importe o ficheiro SIRE do Portal das Finanças e veja gráficos de
-              rendimento por mês e cliente. Finalmente, uma forma fácil de
-              analisar os seus recibos verdes.
+            <p className="mb-3 text-lg text-gray-600">
+              A maioria dos freelancers portugueses não sabe qual é o seu melhor
+              cliente, o seu melhor mês, ou se o seu negócio está a crescer.
+            </p>
+            <p className="mb-8 text-lg font-medium text-gray-800">
+              O Painel dos Recibos transforma o ficheiro SIRE do Portal das
+              Finanças em gráficos claros — para ganhares mais, trabalhando
+              melhor.
             </p>
 
             {/* Waitlist Form */}
@@ -60,6 +64,20 @@ export default function Home() {
 
             {/* Trust indicators */}
             <div className="mt-8 flex flex-wrap gap-4 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <svg
+                  className="h-4 w-4 text-green-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>100% gratuito para começar</span>
+              </div>
               <div className="flex items-center gap-1">
                 <svg
                   className="h-4 w-4 text-green-500"
@@ -98,47 +116,129 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Problem Section */}
+      <section className="bg-gray-50 py-16 md:py-24">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <p className="mb-2 text-sm font-medium uppercase tracking-wide text-green-700">
+            &ldquo;O que é medido é gerido&rdquo;
+          </p>
+          <h2 className="mb-4 text-3xl font-bold text-gray-900">
+            O problema é que não estás a medir nada
+          </h2>
+          <p className="mb-10 text-lg text-gray-600">
+            Passas recibos verdes todos os meses, mas o Portal das Finanças só
+            te dá um ficheiro CSV impossível de ler. Resultado?
+          </p>
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <div className="mb-3 text-3xl text-red-400">?</div>
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                Não sabes quem te paga mais
+              </h3>
+              <p className="text-sm text-gray-600">
+                Qual é o cliente que mais contribui para o teu rendimento?
+                Sem dados claros, não consegues priorizar.
+              </p>
+            </div>
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <div className="mb-3 text-3xl text-red-400">?</div>
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                Não vês a sazonalidade
+              </h3>
+              <p className="text-sm text-gray-600">
+                Há meses em que ganhas mais e meses em que ganhas menos.
+                Mas quais? E porquê?
+              </p>
+            </div>
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <div className="mb-3 text-3xl text-red-400">?</div>
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                Não sabes se estás a crescer
+              </h3>
+              <p className="text-sm text-gray-600">
+                O teu negócio está a melhorar ou a estagnar?
+                Sem números, estás a adivinhar.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How it Works - 3 Steps */}
+      <section id="como-funciona" className="bg-white py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-4 text-center">
+            <h2 className="mb-4 text-3xl font-bold text-gray-900">
+              A solução em 3 passos simples
+            </h2>
+            <p className="text-lg text-gray-600">
+              Do Portal das Finanças ao teu dashboard pessoal, em menos de
+              2 minutos.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-8 md:grid-cols-3">
+            {/* Step 1 */}
+            <div className="text-center">
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-2xl font-bold text-white">
+                1
+              </div>
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                Exporta do Portal das Finanças
+              </h3>
+              <p className="text-gray-600">
+                Vai ao Portal das Finanças, entra no e-Fatura &gt; SIRE e
+                exporta os teus recibos em CSV. Demora 30 segundos.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="text-center">
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-2xl font-bold text-white">
+                2
+              </div>
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                Importa o ficheiro
+              </h3>
+              <p className="text-gray-600">
+                Arrasta o ficheiro CSV para o Painel dos Recibos. Nós
+                processamos tudo automaticamente — sem configurações.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="text-center">
+              <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-2xl font-bold text-white">
+                3
+              </div>
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                Vê os teus números
+              </h3>
+              <p className="text-gray-600">
+                Gráficos de rendimento por mês, por cliente, tendências e
+                muito mais. Finalmente, percebes o teu negócio.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
-      <section id="funcionalidades" className="bg-white py-16 md:py-24">
+      <section id="funcionalidades" className="py-16 md:py-24">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-12 text-center">
             <h2 className="mb-4 text-3xl font-bold text-gray-900">
-              Tudo o que precisa para gerir os seus recibos
+              O que vais descobrir sobre o teu negócio
             </h2>
             <p className="text-lg text-gray-600">
-              Importar, visualizar e analisar. Simples assim.
+              Respostas que sempre quiseste ter, a partir dos recibos que já
+              passaste.
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
             {/* Feature 1 */}
-            <div className="rounded-xl border border-gray-100 p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                  />
-                </svg>
-              </div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Importação Fácil
-              </h3>
-              <p className="text-gray-600">
-                Arraste o ficheiro SIRE exportado do Portal das Finanças.
-                Processamento automático de todos os recibos.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="rounded-xl border border-gray-100 p-6">
+            <div className="rounded-xl border border-gray-100 bg-white p-6">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                 <svg
                   className="h-6 w-6 text-green-600"
@@ -155,16 +255,42 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Gráficos Interativos
+                Rendimento por mês
               </h3>
               <p className="text-gray-600">
-                Veja o seu rendimento por mês e por cliente. Identifique
-                tendências e os seus melhores clientes.
+                Vê quanto ganhaste em cada mês. Identifica a sazonalidade do
+                teu negócio e planeia os meses mais fracos.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="rounded-xl border border-gray-100 bg-white p-6">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-xl font-semibold text-gray-900">
+                Ranking de clientes
+              </h3>
+              <p className="text-gray-600">
+                Descobre quais os clientes que mais contribuem para o teu
+                rendimento. Sabe onde investir o teu tempo.
               </p>
             </div>
 
             {/* Feature 3 */}
-            <div className="rounded-xl border border-gray-100 p-6">
+            <div className="rounded-xl border border-gray-100 bg-white p-6">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                 <svg
                   className="h-6 w-6 text-green-600"
@@ -181,69 +307,11 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Dados Seguros
+                Dados 100% seguros
               </h3>
               <p className="text-gray-600">
-                Os seus dados ficam encriptados e armazenados na União Europeia.
-                Pode apagar tudo a qualquer momento.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it Works */}
-      <section id="como-funciona" className="py-16 md:py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-900">
-              Como funciona
-            </h2>
-            <p className="text-lg text-gray-600">
-              Em 3 passos simples, do Portal das Finanças ao seu dashboard.
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Step 1 */}
-            <div className="text-center">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-xl font-bold text-white">
-                1
-              </div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Exporte do Portal AT
-              </h3>
-              <p className="text-gray-600">
-                No Portal das Finanças, vá a e-Fatura &gt; SIRE e exporte os
-                seus recibos em formato CSV.
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="text-center">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-xl font-bold text-white">
-                2
-              </div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Importe o Ficheiro
-              </h3>
-              <p className="text-gray-600">
-                Arraste o ficheiro CSV para a nossa aplicação. Processamos tudo
-                automaticamente.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="text-center">
-              <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-xl font-bold text-white">
-                3
-              </div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Visualize e Analise
-              </h3>
-              <p className="text-gray-600">
-                Veja gráficos interativos com o seu rendimento por mês, cliente
-                e muito mais.
+                Os teus dados ficam encriptados e armazenados na União Europeia.
+                Podes apagar tudo a qualquer momento.
               </p>
             </div>
           </div>
@@ -258,7 +326,8 @@ export default function Home() {
               Preços simples e transparentes
             </h2>
             <p className="text-lg text-gray-600">
-              Comece grátis. Faça upgrade quando precisar.
+              Menos que um café por mês. Começa grátis, faz upgrade quando
+              precisares.
             </p>
           </div>
 
@@ -268,7 +337,7 @@ export default function Home() {
               <h3 className="mb-2 text-xl font-semibold text-gray-900">
                 Explorador
               </h3>
-              <p className="mb-4 text-gray-600">Para começar a explorar</p>
+              <p className="mb-4 text-gray-600">Para começar a perceber os teus números</p>
               <div className="mb-6">
                 <span className="text-4xl font-bold text-gray-900">0€</span>
                 <span className="text-gray-600">/mês</span>
@@ -276,7 +345,7 @@ export default function Home() {
               <ul className="mb-8 space-y-3">
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -290,7 +359,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -304,7 +373,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -328,7 +397,7 @@ export default function Home() {
                 Recomendado
               </div>
               <h3 className="mb-2 text-xl font-semibold text-gray-900">Pro</h3>
-              <p className="mb-4 text-gray-600">Para profissionais</p>
+              <p className="mb-4 text-gray-600">Para quem leva o negócio a sério</p>
               <div className="mb-6">
                 <span className="text-4xl font-bold text-gray-900">2,99€</span>
                 <span className="text-gray-600">/mês</span>
@@ -336,7 +405,7 @@ export default function Home() {
               <ul className="mb-8 space-y-3">
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -350,7 +419,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -360,11 +429,11 @@ export default function Home() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  Comparação anual
+                  Comparação ano a ano
                 </li>
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -378,7 +447,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -392,7 +461,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-600">
                   <svg
-                    className="h-5 w-5 text-green-500"
+                    className="h-5 w-5 flex-shrink-0 text-green-500"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >
@@ -417,10 +486,11 @@ export default function Home() {
       <section className="py-16 md:py-24">
         <div className="mx-auto max-w-2xl px-4 text-center">
           <h2 className="mb-4 text-3xl font-bold text-gray-900">
-            Seja dos primeiros a experimentar
+            Deixa de adivinhar. Começa a saber.
           </h2>
           <p className="mb-8 text-lg text-gray-600">
-            Deixe o seu email e avisamos quando o produto estiver disponível.
+            Deixa o teu email e avisamos assim que o Painel dos Recibos estiver
+            disponível.
           </p>
           <WaitlistForm className="mx-auto" />
         </div>

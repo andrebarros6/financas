@@ -6,10 +6,34 @@ A web application for Portuguese independent workers (trabalhadores independente
 
 ---
 
+## Core Problem & Messaging
+
+### The Problem
+Portuguese freelancers (trabalhadores independentes) issue receipts every month but have **zero visibility** into their own business numbers. The AT Portal exports a raw CSV file that nobody can read. As a result:
+
+- **They don't know who pays them the most** — they can't prioritize clients or negotiate better
+- **They don't see seasonality** — they don't know which months are strong or weak, or why
+- **They don't know if they're growing** — without data, every business decision is a guess
+
+### The Core Idea
+**"O que é medido é gerido"** (What is measured is managed) — freelancers need to measure their income to manage their business. The product turns their existing receipt data (which they already have) into actionable insights.
+
+### The Solution
+Transform the SIRE CSV export from Portal das Finanças into clear, interactive dashboards — so freelancers can understand where their money comes from, spot trends, and make better decisions. The goal: **earn more by working smarter**.
+
+### Landing Page Messaging Angles
+- **Hero**: "Passas recibos todos os meses. Mas sabes quem te faz ganhar mais?"
+- **Problem framing**: "O que é medido é gerido" → "O problema é que não estás a medir nada"
+- **Solution**: 3 simple steps (Export from AT → Import CSV → See your dashboard)
+- **Outcome**: "Deixa de adivinhar. Começa a saber."
+- **Pricing anchor**: "Menos que um café por mês"
+
+---
+
 ## Target Market
 
 - **Primary**: Portuguese freelancers who issue "recibos verdes" (green receipts)
-- **Pain point**: No easy way to visualize income trends from the AT portal's raw CSV exports
+- **Pain point**: No easy way to visualize income trends from the AT portal's raw CSV exports — they don't know which clients pay most, can't see seasonality, and can't tell if their business is growing
 - **Language**: Portuguese only (MVP)
 
 ---
