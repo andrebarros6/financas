@@ -395,9 +395,14 @@ Add third tier to make €4.99 Premium feel like obvious value:
    - Summary statistics cards (total receipts, total amount, unique clients)
 
 ### Phase 3: Subscription & Monetization 🚧 IN PROGRESS
-1. ⏳ Add receipt list page
-   - **Test**: View all receipts in sortable/filterable table
-   - **Status**: Not yet implemented
+1. ✅ Add receipt list page
+   - **Test**: View all receipts in sortable/filterable table ✅
+   - **Features implemented**:
+     - Sortable columns (date, client, total amount)
+     - Search/filter by client name, NIF, or reference
+     - Pagination (25 items per page)
+     - Professional table design with responsive formatting
+     - Empty state and loading states
 2. ⏳ Implement Stripe integration
    - **Test**: Complete test subscription flow
    - Setup Stripe API keys
@@ -407,11 +412,16 @@ Add third tier to make €4.99 Premium feel like obvious value:
    - **Test**: Free user blocked from 2nd year, premium user allowed
    - Implement year limit check (1 year for free tier)
    - Show upgrade prompts when limits reached
-4. ⏳ Create settings page
-   - **Test**: View subscription status, manage billing
-   - Display current plan (Free/Pro)
-   - Link to Stripe customer portal
-   - Data deletion option
+4. ✅ Create settings page
+   - **Test**: View subscription status, manage billing ✅
+   - **Features implemented**:
+     - Display current plan (Free/Pro/Trial/Founding Member) with badges
+     - Account information display (email, member since)
+     - Data deletion with two-step confirmation
+     - Feature comparison for Free vs Pro tiers
+     - Upgrade CTA for free tier users
+     - Sign out functionality
+   - **Note**: Stripe customer portal integration pending Stripe setup
 
 ### Phase 4: Launch
 1. Add Google Analytics
@@ -507,34 +517,56 @@ export function ReceiptList({ receipts, onSelect }: Props) {
 
 ---
 
-## File Structure (Proposed)
+## File Structure (Current)
 
 ```
 /app
-  /page.tsx                 # Landing page
+  /page.tsx                     # Landing page
   /dashboard
-    /page.tsx               # Main dashboard
-    /upload/page.tsx        # Upload flow
-    /settings/page.tsx      # User settings
+    /page.tsx                   # Main dashboard ✅
+    /upload/page.tsx            # Upload flow ✅
+    /receipts/page.tsx          # Receipt list ✅
+    /settings/page.tsx          # User settings ✅
+    /layout.tsx                 # Dashboard layout with navigation ✅
   /api
-    /webhooks/stripe        # Stripe webhooks
+    /receipts/route.ts          # GET/DELETE receipts ✅
+    /receipts/import/route.ts   # POST import receipts ✅
+    /waitlist/route.ts          # Waitlist signup ✅
+    /webhooks/stripe            # Stripe webhooks (pending)
 /components
   /charts
-    /MonthlyIncomeChart.tsx
-    /ClientIncomeChart.tsx
+    /ClientIncomeChart.tsx      # Client income bar chart ✅
+    /TimeIncomeChart.tsx        # Time-based income chart ✅
+    /DetailedTimeChart.tsx      # Detailed time breakdown ✅
+    /StackedTimeClientChart.tsx # Stacked time/client chart ✅
+  /dashboard
+    /SummaryStats.tsx           # Summary statistics cards ✅
+    /DashboardToolbar.tsx       # Tab and time controls ✅
+    /OverviewTab.tsx            # Overview dashboard tab ✅
+    /DetailedTimeTab.tsx        # Detailed time tab ✅
+    /PerClientTab.tsx           # Per-client analysis tab ✅
+    /TotalPerClientTab.tsx      # Total per client tab ✅
   /upload
-    /CsvUploader.tsx
-    /CsvParser.ts
-  /receipts
-    /ReceiptTable.tsx
-    /ReceiptEditModal.tsx
-  /ui                       # Shared UI components
+    /CsvUploader.tsx            # CSV upload component ✅
+    /ParseResultsPreview.tsx    # Parse results preview ✅
+  /ui
+    /Button.tsx                 # Reusable button component ✅
+    /Input.tsx                  # Reusable input component ✅
 /lib
-  /supabase.ts              # Supabase client
-  /stripe.ts                # Stripe helpers
-  /csv-parser.ts            # CSV parsing logic
+  /supabase/
+    /client.ts                  # Client-side Supabase ✅
+    /server.ts                  # Server-side Supabase ✅
+  /csv/
+    /sire-parser.ts             # SIRE CSV parser ✅
+  /dashboard/
+    /filters.ts                 # Dashboard filter logic ✅
+    /types.ts                   # Dashboard types ✅
+/hooks
+  /useAuth.ts                   # Authentication hook ✅
+  /useReceipts.ts               # Receipts data hook ✅
 /types
-  /receipt.ts               # TypeScript types
+  /receipt.ts                   # Receipt types ✅
+  /database.ts                  # Database types ✅
 ```
 
 ---

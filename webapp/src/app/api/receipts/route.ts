@@ -1,8 +1,8 @@
 /**
- * API Route: Get Receipts
+ * API Route: Receipts
  *
- * GET /api/receipts
- * Retrieves user's receipts from the database
+ * GET /api/receipts - Retrieves user's receipts from the database
+ * DELETE /api/receipts - Deletes all user's receipts from the database
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -101,6 +101,48 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Get receipts error:', error)
+    return NextResponse.json(
+      { error: 'Erro ao processar pedido' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE() {
+  try {
+    const supabase = await createClient()
+    // Type cast to work around generic type inference issues
+    const receiptsTable = supabase.from('receipts') as any
+
+    // Get authenticated user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    // Delete all receipts for the user
+    const { error } = await receiptsTable
+      .delete()
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('Database error:', error)
+      return NextResponse.json(
+        { error: 'Erro ao eliminar recibos' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Todos os recibos foram eliminados',
+    })
+  } catch (error) {
+    console.error('Delete receipts error:', error)
     return NextResponse.json(
       { error: 'Erro ao processar pedido' },
       { status: 500 }
