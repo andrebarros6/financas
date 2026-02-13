@@ -115,7 +115,7 @@ FR001;Fatura;ATCUD001;Emitido`
 describe('validateSireCSV', () => {
   it('validates correct CSV structure', () => {
     const header = SIRE_CSV_HEADERS.join(';')
-    const dataLine = 'FR001;Fatura;ATCUD001;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente;1000,00;0,00;;0,00;0,00;0,00;1000,00;0,00;0,00;1000,00'
+    const dataLine = 'FR001;Fatura;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente;1000,00;0,00;;0,00;0,00;0,00;1000,00;0,00;0,00;1000,00'
     const csv = `${header}\n${dataLine}`
 
     const result = validateSireCSV(csv)
@@ -156,7 +156,7 @@ describe('validateSireCSV', () => {
 
   it('handles BOM character', () => {
     const header = SIRE_CSV_HEADERS.join(';')
-    const dataLine = 'FR001;Fatura;ATCUD001;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente;1000,00;0,00;;0,00;0,00;0,00;1000,00;0,00;0,00;1000,00'
+    const dataLine = 'FR001;Fatura;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente;1000,00;0,00;;0,00;0,00;0,00;1000,00;0,00;0,00;1000,00'
     const csv = `\uFEFF${header}\n${dataLine}`
 
     const result = validateSireCSV(csv)
@@ -168,8 +168,8 @@ describe('parseSireCSV', () => {
   it('parses valid CSV with multiple receipts', () => {
     const header = SIRE_CSV_HEADERS.join(';')
     const lines = [
-      'FR001;Fatura-Recibo;ATCUD001;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;230,00;;0,00;250,00;480,00;1.230,00;250,00;0,00;980,00',
-      'FR002;Fatura;ATCUD002;Emitido;2024-02-20;;2024-02-20;PORTUGAL;987654321;Cliente B;2.500,50;575,12;;0,00;625,13;1.200,25;3.075,62;625,13;0,00;2.450,49',
+      'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;230,00;;0,00;250,00;480,00;1.230,00;250,00;0,00;980,00',
+      'FR002;Fatura;ATCUD002;Emitido;;2024-02-20;2024-02-20;PORTUGAL;987654321;Cliente B;2.500,50;575,12;;0,00;625,13;1.200,25;3.075,62;625,13;0,00;2.450,49',
     ]
     const csv = `${header}\n${lines.join('\n')}`
 
@@ -197,9 +197,9 @@ describe('parseSireCSV', () => {
   it('skips cancelled receipts', () => {
     const header = SIRE_CSV_HEADERS.join(';')
     const lines = [
-      'FR001;Fatura-Recibo;ATCUD001;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00',
-      'FR002;Fatura-Recibo;ATCUD002;Anulado;2024-02-20;;2024-02-20;PORTUGAL;987654321;Cliente B;500,00;0,00;;0,00;0,00;0,00;500,00;0,00;0,00;500,00',
-      'FR003;Fatura-Recibo;ATCUD003;Emitido;2024-03-25;;2024-03-25;PORTUGAL;111222333;Cliente C;2.000,00;0,00;;0,00;0,00;0,00;2.000,00;0,00;0,00;2.000,00',
+      'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00',
+      'FR002;Fatura-Recibo;ATCUD002;Anulado;;2024-02-20;2024-02-20;PORTUGAL;987654321;Cliente B;500,00;0,00;;0,00;0,00;0,00;500,00;0,00;0,00;500,00',
+      'FR003;Fatura-Recibo;ATCUD003;Emitido;;2024-03-25;2024-03-25;PORTUGAL;111222333;Cliente C;2.000,00;0,00;;0,00;0,00;0,00;2.000,00;0,00;0,00;2.000,00',
     ]
     const csv = `${header}\n${lines.join('\n')}`
 
@@ -214,8 +214,8 @@ describe('parseSireCSV', () => {
   it('detects duplicate ATCUD', () => {
     const header = SIRE_CSV_HEADERS.join(';')
     const lines = [
-      'FR001;Fatura-Recibo;ATCUD001;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00',
-      'FR002;Fatura-Recibo;ATCUD001;Emitido;2024-02-20;;2024-02-20;PORTUGAL;987654321;Cliente B;500,00;0,00;;0,00;0,00;0,00;500,00;0,00;0,00;500,00',
+      'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00',
+      'FR002;Fatura-Recibo;ATCUD001;Emitido;;2024-02-20;2024-02-20;PORTUGAL;987654321;Cliente B;500,00;0,00;;0,00;0,00;0,00;500,00;0,00;0,00;500,00',
     ]
     const csv = `${header}\n${lines.join('\n')}`
 
@@ -231,9 +231,9 @@ describe('parseSireCSV', () => {
   it('handles parsing errors gracefully', () => {
     const header = SIRE_CSV_HEADERS.join(';')
     const lines = [
-      'FR001;Fatura-Recibo;ATCUD001;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00',
-      'FR002;Fatura-Recibo;ATCUD002;Emitido;INVALID-DATE;;2024-02-20;PORTUGAL;987654321;Cliente B;500,00;0,00;;0,00;0,00;0,00;500,00;0,00;0,00;500,00',
-      'FR003;Fatura-Recibo;ATCUD003;Emitido;2024-03-25;;2024-03-25;PORTUGAL;111222333;Cliente C;2.000,00;0,00;;0,00;0,00;0,00;2.000,00;0,00;0,00;2.000,00',
+      'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00',
+      'FR002;Fatura-Recibo;ATCUD002;Emitido;;INVALID-DATE;2024-02-20;PORTUGAL;987654321;Cliente B;500,00;0,00;;0,00;0,00;0,00;500,00;0,00;0,00;500,00',
+      'FR003;Fatura-Recibo;ATCUD003;Emitido;;2024-03-25;2024-03-25;PORTUGAL;111222333;Cliente C;2.000,00;0,00;;0,00;0,00;0,00;2.000,00;0,00;0,00;2.000,00',
     ]
     const csv = `${header}\n${lines.join('\n')}`
 
@@ -257,7 +257,7 @@ describe('parseSireCSV', () => {
 
   it('handles BOM character', () => {
     const header = SIRE_CSV_HEADERS.join(';')
-    const line = 'FR001;Fatura-Recibo;ATCUD001;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00'
+    const line = 'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00'
     const csv = `\uFEFF${header}\n${line}`
 
     const result = parseSireCSV(csv)
@@ -268,7 +268,7 @@ describe('parseSireCSV', () => {
 
   it('handles empty optional fields', () => {
     const header = SIRE_CSV_HEADERS.join(';')
-    const line = 'FR001;Fatura-Recibo;ATCUD001;Emitido;2024-01-15;;2024-01-15;;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;;1.000,00;0,00;0,00;1.000,00'
+    const line = 'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;;1.000,00;0,00;0,00;1.000,00'
     const csv = `${header}\n${line}`
 
     const result = parseSireCSV(csv)
@@ -282,7 +282,7 @@ describe('parseSireCSV', () => {
   it('rejects missing required fields', () => {
     const header = SIRE_CSV_HEADERS.join(';')
     // Missing ATCUD (empty)
-    const line = 'FR001;Fatura-Recibo;;Emitido;2024-01-15;;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00'
+    const line = 'FR001;Fatura-Recibo;;Emitido;;2024-01-15;2024-01-15;PORTUGAL;123456789;Cliente A;1.000,00;0,00;;0,00;0,00;0,00;1.000,00;0,00;0,00;1.000,00'
     const csv = `${header}\n${line}`
 
     const result = parseSireCSV(csv)

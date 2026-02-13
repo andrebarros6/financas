@@ -10,6 +10,7 @@ import type { Receipt } from '@/hooks/useReceipts'
 // Mock Chart.js to avoid canvas issues in tests
 vi.mock('react-chartjs-2', () => ({
   Bar: () => <div data-testid="bar-chart">Chart</div>,
+  getElementAtEvent: () => [],
 }))
 
 describe('ClientIncomeChart', () => {

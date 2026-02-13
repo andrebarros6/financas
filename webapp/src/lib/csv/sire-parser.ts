@@ -80,8 +80,8 @@ function parseReceiptLine(fields: string[], lineNumber: number): ParsedReceipt {
     situacao: fields[3].trim(),
 
     // Dates
-    dataTransacao: parseDate(fields[4]),
-    motivoEmissao: fields[5].trim() || null,
+    motivoEmissao: fields[4].trim() || null,
+    dataTransacao: parseDate(fields[5]),
     dataEmissao: parseDate(fields[6]),
 
     // Client info

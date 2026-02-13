@@ -3,10 +3,11 @@
 /**
  * Client Income Chart
  *
- * Horizontal bar chart showing total income per client
+ * Horizontal bar chart showing total income per client.
+ * Supports optional click-to-select for cross-filtering.
  */
 
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,7 +18,7 @@ import {
   Legend,
   type ChartOptions,
 } from 'chart.js'
-import { Bar } from 'react-chartjs-2'
+import { Bar, getElementAtEvent } from 'react-chartjs-2'
 import type { Receipt } from '@/hooks/useReceipts'
 
 // Register Chart.js components
@@ -26,6 +27,9 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 interface ClientIncomeChartProps {
   receipts: Receipt[]
   limit?: number
+  onBarClick?: (nif: string | null, name: string) => void
+  selectedNif?: string | null
+  showStats?: boolean
 }
 
 interface ClientData {
@@ -35,7 +39,15 @@ interface ClientData {
   count: number
 }
 
-export function ClientIncomeChart({ receipts, limit = 10 }: ClientIncomeChartProps) {
+export function ClientIncomeChart({
+  receipts,
+  limit = 10,
+  onBarClick,
+  selectedNif,
+  showStats = false,
+}: ClientIncomeChartProps) {
+  const chartRef = useRef<any>(null)
+
   const clientData = useMemo(() => {
     // Group receipts by client
     const dataByClient = receipts.reduce<Record<string, ClientData>>((acc, receipt) => {
@@ -62,6 +74,29 @@ export function ClientIncomeChart({ receipts, limit = 10 }: ClientIncomeChartPro
       .slice(0, limit)
   }, [receipts, limit])
 
+  const clientStats = useMemo(() => {
+    if (!showStats || clientData.length === 0) return null
+    const totals = clientData.map(c => c.total)
+    const avg = totals.reduce((s, v) => s + v, 0) / totals.length
+    const maxIdx = totals.indexOf(Math.max(...totals))
+    const minIdx = totals.indexOf(Math.min(...totals))
+    return { average: avg, maxIndex: maxIdx, minIndex: minIdx }
+  }, [showStats, clientData])
+
+  const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onBarClick || !chartRef.current) return
+
+    const elements = getElementAtEvent(chartRef.current, event)
+    if (elements.length > 0) {
+      const index = elements[0].index
+      const clicked = clientData[index]
+      onBarClick(
+        clicked.nif === selectedNif ? null : clicked.nif,
+        clicked.name
+      )
+    }
+  }
+
   // Shorten long client names
   const labels = clientData.map(client => {
     const maxLength = 25
@@ -71,14 +106,22 @@ export function ClientIncomeChart({ receipts, limit = 10 }: ClientIncomeChartPro
     return client.name
   })
 
+  const backgroundColor = clientData.map(c =>
+    selectedNif == null
+      ? 'rgba(234, 179, 8, 0.8)'
+      : c.nif === selectedNif
+        ? 'rgba(234, 179, 8, 1)'
+        : 'rgba(234, 179, 8, 0.2)'
+  )
+
   const data = {
     labels,
     datasets: [
       {
         label: 'Rendimento',
         data: clientData.map(c => c.total),
-        backgroundColor: 'rgba(59, 130, 246, 0.8)', // blue-500
-        borderColor: 'rgba(59, 130, 246, 1)',
+        backgroundColor,
+        borderColor: 'rgba(234, 179, 8, 1)',
         borderWidth: 1,
         borderRadius: 6,
       },
@@ -136,6 +179,14 @@ export function ClientIncomeChart({ receipts, limit = 10 }: ClientIncomeChartPro
         },
       },
     },
+    onHover: onBarClick
+      ? (event, elements) => {
+          const canvas = event.native?.target as HTMLCanvasElement | undefined
+          if (canvas) {
+            canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default'
+          }
+        }
+      : undefined,
   }
 
   return (
@@ -147,8 +198,36 @@ export function ClientIncomeChart({ receipts, limit = 10 }: ClientIncomeChartPro
         </p>
       </div>
       <div className="h-96">
-        <Bar data={data} options={options} />
+        <Bar ref={chartRef} data={data} options={options} onClick={handleClick} />
       </div>
+      {clientStats && (
+        <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+          <div>
+            <p className="text-gray-500">Média</p>
+            <p className="font-semibold text-gray-900">
+              {clientStats.average.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+            </p>
+          </div>
+          <div>
+            <p className="text-gray-500">Máximo</p>
+            <p className="font-semibold text-gray-900">
+              {clientData[clientStats.maxIndex].total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+            </p>
+            <p className="text-xs text-gray-400">{clientData[clientStats.maxIndex].name}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Mínimo</p>
+            <p className="font-semibold text-gray-900">
+              {clientData[clientStats.minIndex].total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+            </p>
+            <p className="text-xs text-gray-400">{clientData[clientStats.minIndex].name}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Clientes</p>
+            <p className="font-semibold text-gray-900">{clientData.length}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
