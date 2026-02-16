@@ -4,6 +4,7 @@
  */
 
 export type SubscriptionTier = 'free' | 'pro'
+export type SubscriptionInterval = 'monthly' | 'annual'
 
 export interface Database {
   public: {
@@ -17,6 +18,8 @@ export interface Database {
           subscription_expires_at: string | null
           trial_started_at: string | null
           stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_interval: SubscriptionInterval | null
           is_founding_member: boolean
         }
         Insert: {
@@ -27,6 +30,8 @@ export interface Database {
           subscription_expires_at?: string | null
           trial_started_at?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_interval?: SubscriptionInterval | null
           is_founding_member?: boolean
         }
         Update: {
@@ -37,6 +42,8 @@ export interface Database {
           subscription_expires_at?: string | null
           trial_started_at?: string | null
           stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_interval?: SubscriptionInterval | null
           is_founding_member?: boolean
         }
       }

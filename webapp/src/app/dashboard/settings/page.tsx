@@ -1,17 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
-export default function SettingsPage() {
-  const { user, profile, isPro, signOut } = useAuth();
+function SettingsContent() {
+  const { user, profile, isPro, signOut, refreshProfile } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">(
+    "monthly"
+  );
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
+  const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkout = searchParams.get("checkout");
+    if (checkout === "success") {
+      setCheckoutMessage("Subscrição ativada com sucesso! Bem-vindo ao Pro.");
+      window.history.replaceState({}, "", "/dashboard/settings");
+      refreshProfile();
+    } else if (checkout === "cancelled") {
+      window.history.replaceState({}, "", "/dashboard/settings");
+    }
+  }, [searchParams, refreshProfile]);
 
   const handleDeleteAllData = async () => {
     if (!showDeleteConfirm) {
@@ -35,7 +53,6 @@ export default function SettingsPage() {
       setDeleteSuccess(true);
       setShowDeleteConfirm(false);
 
-      // Redirect to dashboard after 2 seconds
       setTimeout(() => {
         router.push("/dashboard");
       }, 2000);
@@ -45,6 +62,52 @@ export default function SettingsPage() {
       );
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setIsCheckingOut(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ interval: billingInterval }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao processar pagamento");
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (err) {
+      alert(
+        err instanceof Error ? err.message : "Erro ao processar pagamento"
+      );
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setIsOpeningPortal(true);
+    try {
+      const response = await fetch("/api/billing-portal", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Erro ao abrir portal");
+      }
+
+      const { url } = await response.json();
+      window.location.href = url;
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Erro ao abrir portal");
+    } finally {
+      setIsOpeningPortal(false);
     }
   };
 
@@ -123,15 +186,36 @@ export default function SettingsPage() {
 
   const subscriptionInfo = getSubscriptionStatus();
 
+  const checkIconSmall = (
+    <svg
+      className="w-4 h-4 text-green-600"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M5 13l4 4L19 7"
+      />
+    </svg>
+  );
+
   return (
     <div className="max-w-4xl">
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Definições</h1>
-        <p className="text-gray-500 mt-1">
-          Gerir a sua conta e subscrição
-        </p>
+        <p className="text-gray-500 mt-1">Gerir a sua conta e subscrição</p>
       </div>
+
+      {/* Checkout success banner */}
+      {checkoutMessage && (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-sm text-green-800">{checkoutMessage}</p>
+        </div>
+      )}
 
       <div className="space-y-6">
         {/* Account Information */}
@@ -162,9 +246,7 @@ export default function SettingsPage() {
         {/* Subscription Information */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Subscrição
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900">Subscrição</h2>
           </div>
           <div className="px-6 py-4">
             <div className="flex items-start justify-between">
@@ -175,7 +257,7 @@ export default function SettingsPage() {
                   </h3>
                   {subscriptionInfo?.badge === "founding" && (
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      ⭐ Fundador
+                      Fundador
                     </span>
                   )}
                   {subscriptionInfo?.badge === "pro" && (
@@ -198,7 +280,7 @@ export default function SettingsPage() {
                   {subscriptionInfo?.description}
                 </p>
 
-                {/* Free tier features */}
+                {/* Free tier features + upgrade CTA */}
                 {!isPro() && (
                   <div className="mt-4">
                     <p className="text-sm font-medium text-gray-700 mb-2">
@@ -206,51 +288,15 @@ export default function SettingsPage() {
                     </p>
                     <ul className="text-sm text-gray-600 space-y-1">
                       <li className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 text-green-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        {checkIconSmall}
                         1 ano de dados
                       </li>
                       <li className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 text-green-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        {checkIconSmall}
                         Gráficos básicos
                       </li>
                       <li className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 text-green-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        {checkIconSmall}
                         Visualização de recibos
                       </li>
                     </ul>
@@ -260,18 +306,51 @@ export default function SettingsPage() {
                         Faça upgrade para Pro
                       </p>
                       <ul className="text-sm text-green-800 space-y-1 mb-4">
-                        <li>✓ Anos ilimitados de dados</li>
-                        <li>✓ Comparações multi-ano</li>
-                        <li>✓ Análise detalhada por cliente</li>
-                        <li>✓ Exportar para PDF/Excel</li>
+                        <li>{"✓"} Anos ilimitados de dados</li>
+                        <li>{"✓"} Comparações multi-ano</li>
+                        <li>{"✓"} Análise detalhada por cliente</li>
+                        <li>{"✓"} Exportar para PDF/Excel</li>
                       </ul>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => alert("Stripe integration coming soon!")}
-                      >
-                        Fazer upgrade por €2.99/mês
-                      </Button>
+
+                      {/* Billing interval toggle */}
+                      <div className="mb-4 inline-flex items-center rounded-full bg-green-100 p-1">
+                        <button
+                          onClick={() => setBillingInterval("monthly")}
+                          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                            billingInterval === "monthly"
+                              ? "bg-white text-green-900 shadow-sm"
+                              : "text-green-700 hover:text-green-900"
+                          }`}
+                        >
+                          Mensal — 2,99€/mês
+                        </button>
+                        <button
+                          onClick={() => setBillingInterval("annual")}
+                          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                            billingInterval === "annual"
+                              ? "bg-white text-green-900 shadow-sm"
+                              : "text-green-700 hover:text-green-900"
+                          }`}
+                        >
+                          Anual — 29,90€/ano
+                          <span className="ml-1 text-xs text-green-600">
+                            (Poupa 2 meses)
+                          </span>
+                        </button>
+                      </div>
+
+                      <div>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={handleUpgrade}
+                          loading={isCheckingOut}
+                        >
+                          {billingInterval === "monthly"
+                            ? "Fazer upgrade por 2,99€/mês"
+                            : "Fazer upgrade por 29,90€/ano"}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -284,80 +363,39 @@ export default function SettingsPage() {
                     </p>
                     <ul className="text-sm text-gray-600 space-y-1">
                       <li className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 text-green-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        {checkIconSmall}
                         Anos ilimitados de dados
                       </li>
                       <li className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 text-green-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        {checkIconSmall}
                         Comparações multi-ano
                       </li>
                       <li className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 text-green-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        {checkIconSmall}
                         Análise detalhada por cliente
                       </li>
                       <li className="flex items-center gap-2">
-                        <svg
-                          className="w-4 h-4 text-green-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        {checkIconSmall}
                         Exportar para PDF/Excel
                       </li>
                     </ul>
 
                     {profile?.subscription_tier === "pro" &&
                       profile.stripe_customer_id && (
-                        <div className="mt-4">
+                        <div className="mt-4 space-y-2">
+                          {profile.subscription_interval && (
+                            <p className="text-xs text-gray-500">
+                              Plano:{" "}
+                              {profile.subscription_interval === "annual"
+                                ? "Anual"
+                                : "Mensal"}
+                            </p>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              alert("Stripe customer portal coming soon!")
-                            }
+                            onClick={handleManageSubscription}
+                            loading={isOpeningPortal}
                           >
                             Gerir subscrição
                           </Button>
@@ -370,10 +408,11 @@ export default function SettingsPage() {
                 {profile?.is_founding_member && (
                   <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
                     <p className="text-sm font-medium text-purple-900 mb-1">
-                      🎉 Obrigado por ser um membro fundador!
+                      Obrigado por ser um membro fundador!
                     </p>
                     <p className="text-sm text-purple-800">
-                      Tem acesso Pro vitalício como agradecimento pelo seu apoio inicial.
+                      Tem acesso Pro vitalício como agradecimento pelo seu apoio
+                      inicial.
                     </p>
                   </div>
                 )}
@@ -396,15 +435,15 @@ export default function SettingsPage() {
                   Eliminar todos os recibos
                 </h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Remove permanentemente todos os recibos importados da sua conta.
-                  Esta ação não pode ser revertida.
+                  Remove permanentemente todos os recibos importados da sua
+                  conta. Esta ação não pode ser revertida.
                 </p>
 
                 {deleteSuccess && (
                   <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-sm text-green-800">
-                      ✓ Todos os recibos foram eliminados com sucesso.
-                      A redirecionar...
+                      Todos os recibos foram eliminados com sucesso. A
+                      redirecionar...
                     </p>
                   </div>
                 )}
@@ -473,5 +512,22 @@ export default function SettingsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-4xl">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">Definições</h1>
+            <p className="text-gray-500 mt-1">A carregar...</p>
+          </div>
+        </div>
+      }
+    >
+      <SettingsContent />
+    </Suspense>
   );
 }
