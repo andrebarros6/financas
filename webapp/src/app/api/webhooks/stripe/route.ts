@@ -44,20 +44,19 @@ export async function POST(request: NextRequest) {
   const supabase = createServiceClient();
 
   try {
+    console.log(`[Webhook] Processing ${event.type}`);
     switch (event.type) {
       case "checkout.session.completed": {
-        await handleCheckoutCompleted(
-          event.data.object as Stripe.Checkout.Session,
-          supabase,
-          stripe
-        );
+        const session = event.data.object as Stripe.Checkout.Session;
+        console.log(`[Webhook] checkout.session.completed — subscription: ${session.subscription}, customer: ${session.customer}`);
+        await handleCheckoutCompleted(session, supabase, stripe);
         break;
       }
       case "customer.subscription.updated": {
-        await handleSubscriptionUpdated(
-          event.data.object as Stripe.Subscription,
-          supabase
-        );
+        const sub = event.data.object as Stripe.Subscription;
+        const interval = sub.items.data[0]?.price?.recurring?.interval;
+        console.log(`[Webhook] subscription.updated — id: ${sub.id}, status: ${sub.status}, interval: ${interval}`);
+        await handleSubscriptionUpdated(sub, supabase);
         break;
       }
       case "customer.subscription.deleted": {
@@ -133,17 +132,26 @@ async function handleCheckoutCompleted(
   const periodEnd = new Date(
     subscription.current_period_end * 1000
   ).toISOString();
+  const mappedInterval = interval === "year" ? "annual" : "monthly";
+
+  console.log(`[Webhook] handleCheckoutCompleted — userId: ${userId}, stripe interval: ${interval}, mapped: ${mappedInterval}, sub: ${subscription.id}`);
 
   const usersTable = supabase.from("users") as any;
-  await usersTable
+  const { error: updateError } = await usersTable
     .update({
       subscription_tier: "pro",
-      subscription_interval: interval === "year" ? "annual" : "monthly",
+      subscription_interval: mappedInterval,
       subscription_expires_at: periodEnd,
       stripe_customer_id: session.customer as string,
       stripe_subscription_id: subscription.id,
     })
     .eq("id", userId);
+
+  if (updateError) {
+    console.error("[Webhook] handleCheckoutCompleted update failed:", updateError);
+  } else {
+    console.log("[Webhook] handleCheckoutCompleted update SUCCESS");
+  }
 }
 
 async function handleSubscriptionUpdated(

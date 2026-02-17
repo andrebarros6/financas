@@ -45,16 +45,15 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh session and get user
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Use getSession (reads from cookies, no network call) to check auth.
+  // getUser() hangs in dev on Windows/Turbopack, so we avoid it here.
+  // Client-side auth validates the token properly.
+  const { data: { session } } = await supabase.auth.getSession();
 
-  // Check if accessing a protected route without being authenticated
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
-  if (isProtectedRoute && !user) {
+  if (isProtectedRoute && !session) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

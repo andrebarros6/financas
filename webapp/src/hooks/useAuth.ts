@@ -26,76 +26,103 @@ export function useAuth() {
 
   const fetchProfile = useCallback(
     async (userId: string): Promise<User | null> => {
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      return data as User | null;
+      console.log("[useAuth] fetchProfile START for:", userId);
+      try {
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", userId)
+          .single();
+        const profile = data as User | null;
+        console.log("[useAuth] fetchProfile result:", { subscription_tier: profile?.subscription_tier, error: error?.message });
+        return profile;
+      } catch (err) {
+        console.error("[useAuth] fetchProfile EXCEPTION:", err);
+        return null;
+      }
     },
     [supabase]
   );
 
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
-      console.log('[useAuth] Getting initial session...');
-      try {
-        // Add timeout to prevent infinite hanging
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Auth timeout after 10s')), 10000)
-        );
+    let cancelled = false;
+    let resolved = false;
 
-        const authPromise = supabase.auth.getUser();
+    // 1) getSession() reads from local storage — fast, never hangs
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (cancelled || resolved) return;
+      resolved = true;
+      console.log("[useAuth] getSession:", !!session?.user);
 
-        const {
-          data: { user },
-          error,
-        } = await Promise.race([authPromise, timeoutPromise]) as any;
-
-        console.log('[useAuth] getUser result:', { user: user?.id, error });
-        if (error) throw error;
-
-        if (user) {
-          console.log('[useAuth] Fetching profile for user:', user.id);
-          const profile = await fetchProfile(user.id);
-          console.log('[useAuth] Profile fetched:', profile);
-          setState({ user, profile, loading: false, error: null });
-        } else {
-          console.log('[useAuth] No user, setting loading to false');
-          setState({ user: null, profile: null, loading: false, error: null });
-        }
-      } catch (err) {
-        console.error('[useAuth] Error:', err);
-        setState({
-          user: null,
-          profile: null,
-          loading: false,
-          error: err instanceof Error ? err.message : "Erro ao carregar sessão",
-        });
-      }
-    };
-
-    getInitialSession();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN" && session?.user) {
-        const profile = await fetchProfile(session.user.id);
-        setState({
+      if (session?.user) {
+        // Stop spinner immediately, fetch profile in background
+        setState((prev) => ({
+          ...prev,
           user: session.user,
-          profile,
           loading: false,
           error: null,
-        });
-      } else if (event === "SIGNED_OUT") {
+        }));
+        const profile = await fetchProfile(session.user.id);
+        if (!cancelled) {
+          setState((prev) => ({ ...prev, profile }));
+        }
+      } else {
         setState({ user: null, profile: null, loading: false, error: null });
       }
     });
 
-    return () => subscription.unsubscribe();
+    // 2) Listen for auth changes (sign-in, sign-out, token refresh)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("[useAuth] onAuthStateChange:", event, !!session?.user);
+
+      // If INITIAL_SESSION arrives before getSession resolves, handle it
+      if (event === "INITIAL_SESSION" && !resolved) {
+        resolved = true;
+        if (session?.user) {
+          setState((prev) => ({
+            ...prev,
+            user: session.user,
+            loading: false,
+            error: null,
+          }));
+          const profile = await fetchProfile(session.user.id);
+          if (!cancelled) {
+            setState((prev) => ({ ...prev, profile }));
+          }
+        } else {
+          setState({ user: null, profile: null, loading: false, error: null });
+        }
+        return;
+      }
+
+      // Skip duplicate INITIAL_SESSION if getSession already handled it
+      if (event === "INITIAL_SESSION") return;
+
+      // Handle subsequent auth changes
+      if (session?.user) {
+        setState((prev) => ({
+          ...prev,
+          user: session.user,
+          loading: false,
+          error: null,
+        }));
+        const profile = await fetchProfile(session.user.id);
+        if (!cancelled) {
+          setState((prev) => ({ ...prev, profile }));
+        }
+      } else if (event === "SIGNED_OUT") {
+        if (!cancelled) {
+          setState({ user: null, profile: null, loading: false, error: null });
+        }
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [supabase, fetchProfile]);
 
   const signInWithEmail = useCallback(
@@ -229,11 +256,13 @@ export function useAuth() {
     return false;
   }, [state.profile]);
 
-  const refreshProfile = useCallback(async () => {
+  const refreshProfile = useCallback(async (): Promise<User | null> => {
     if (state.user) {
       const profile = await fetchProfile(state.user.id);
       setState((prev) => ({ ...prev, profile }));
+      return profile;
     }
+    return null;
   }, [state.user, fetchProfile]);
 
   return {

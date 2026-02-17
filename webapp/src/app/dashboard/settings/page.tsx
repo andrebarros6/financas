@@ -20,16 +20,44 @@ function SettingsContent() {
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
 
+  // Track whether we came from a successful checkout
+  const [pendingProPoll, setPendingProPoll] = useState(false);
+
   useEffect(() => {
     const checkout = searchParams.get("checkout");
     if (checkout === "success") {
       setCheckoutMessage("Subscrição ativada com sucesso! Bem-vindo ao Pro.");
+      setPendingProPoll(true);
       window.history.replaceState({}, "", "/dashboard/settings");
-      refreshProfile();
     } else if (checkout === "cancelled") {
       window.history.replaceState({}, "", "/dashboard/settings");
     }
-  }, [searchParams, refreshProfile]);
+  }, [searchParams]);
+
+  // Poll for pro status once user is available
+  useEffect(() => {
+    if (!pendingProPoll || !user) return;
+    if (isPro()) {
+      setPendingProPoll(false);
+      return;
+    }
+
+    let cancelled = false;
+    const poll = async (attempt: number) => {
+      if (cancelled || attempt >= 15) {
+        setPendingProPoll(false);
+        return;
+      }
+      const updated = await refreshProfile();
+      if (updated?.subscription_tier === "pro") {
+        setPendingProPoll(false);
+        return;
+      }
+      setTimeout(() => poll(attempt + 1), 2000);
+    };
+    poll(0);
+    return () => { cancelled = true; };
+  }, [pendingProPoll, user, isPro, refreshProfile]);
 
   const handleDeleteAllData = async () => {
     if (!showDeleteConfirm) {
