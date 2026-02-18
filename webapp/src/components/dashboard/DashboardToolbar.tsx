@@ -22,8 +22,8 @@ type TimeRangeOption = 'last-12' | 'all' | 'custom' | number
 const TABS: { key: DashboardTab; label: string }[] = [
   { key: 'overview', label: 'Visão Geral' },
   { key: 'time-detail', label: 'Detalhe Temporal' },
-  { key: 'total-per-client', label: 'Total por Cliente' },
-  { key: 'per-client', label: 'Por Cliente' },
+  { key: 'total-per-client', label: 'Detalhe Clientes' },
+  { key: 'per-client', label: 'Período x Cliente' },
   { key: 'receipts', label: 'Recibos' },
 ]
 

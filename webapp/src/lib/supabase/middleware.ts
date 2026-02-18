@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 const protectedRoutes = ["/dashboard"];
 
 // Routes locked during waitlist phase (redirect to landing page)
-const lockedRoutes = ["/login", "/signup"];
+const lockedRoutes: string[] = [];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({

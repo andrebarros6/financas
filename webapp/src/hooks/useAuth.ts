@@ -6,6 +6,39 @@ import { createClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import type { User } from "@/types/database";
 
+const PROFILE_CACHE_KEY = "financas_profile_cache";
+
+function getCachedProfile(): User | null {
+  try {
+    const raw = localStorage.getItem(PROFILE_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed._cachedAt && Date.now() - parsed._cachedAt > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(PROFILE_CACHE_KEY);
+      return null;
+    }
+    const { _cachedAt, ...profile } = parsed;
+    return profile as User;
+  } catch {
+    return null;
+  }
+}
+
+function setCachedProfile(profile: User | null): void {
+  try {
+    if (profile) {
+      localStorage.setItem(
+        PROFILE_CACHE_KEY,
+        JSON.stringify({ ...profile, _cachedAt: Date.now() })
+      );
+    } else {
+      localStorage.removeItem(PROFILE_CACHE_KEY);
+    }
+  } catch {
+    // Silently ignore localStorage errors
+  }
+}
+
 interface AuthState {
   user: SupabaseUser | null;
   profile: User | null;
@@ -15,12 +48,12 @@ interface AuthState {
 
 export function useAuth() {
   const router = useRouter();
-  const [state, setState] = useState<AuthState>({
+  const [state, setState] = useState<AuthState>(() => ({
     user: null,
-    profile: null,
+    profile: getCachedProfile(),
     loading: true,
     error: null,
-  });
+  }));
 
   const supabase = useMemo(() => createClient(), []);
 
@@ -28,13 +61,33 @@ export function useAuth() {
     async (userId: string): Promise<User | null> => {
       console.log("[useAuth] fetchProfile START for:", userId);
       try {
-        const { data, error } = await supabase
+        const TIMEOUT_MS = 5000;
+        const queryPromise = supabase
           .from("users")
           .select("*")
           .eq("id", userId)
           .single();
+
+        const result = await Promise.race([
+          queryPromise,
+          new Promise<{ data: null; error: { message: string } }>((resolve) =>
+            setTimeout(
+              () => resolve({ data: null, error: { message: "fetchProfile timeout" } }),
+              TIMEOUT_MS
+            )
+          ),
+        ]);
+
+        const { data, error } = result;
         const profile = data as User | null;
-        console.log("[useAuth] fetchProfile result:", { subscription_tier: profile?.subscription_tier, error: error?.message });
+        console.log("[useAuth] fetchProfile result:", {
+          subscription_tier: profile?.subscription_tier,
+          error: error?.message,
+        });
+
+        if (profile) {
+          setCachedProfile(profile);
+        }
         return profile;
       } catch (err) {
         console.error("[useAuth] fetchProfile EXCEPTION:", err);
@@ -113,15 +166,26 @@ export function useAuth() {
           setState((prev) => ({ ...prev, profile }));
         }
       } else if (event === "SIGNED_OUT") {
+        setCachedProfile(null);
         if (!cancelled) {
           setState({ user: null, profile: null, loading: false, error: null });
         }
       }
     });
 
+    // 3) Safety-net: force loading=false after 5s no matter what
+    const safetyTimeout = setTimeout(() => {
+      if (!resolved) {
+        console.warn("[useAuth] Safety timeout triggered — forcing loading=false");
+        resolved = true;
+        setState((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+      }
+    }, 5000);
+
     return () => {
       cancelled = true;
       subscription.unsubscribe();
+      clearTimeout(safetyTimeout);
     };
   }, [supabase, fetchProfile]);
 
@@ -199,6 +263,7 @@ export function useAuth() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      setCachedProfile(null);
       router.push("/");
       router.refresh();
     } catch (err) {

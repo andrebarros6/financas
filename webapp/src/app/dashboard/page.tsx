@@ -185,15 +185,15 @@ function DashboardContent() {
                 </li>
                 <li className="flex gap-2">
                   <span className="font-medium text-gray-900">2.</span>
-                  Vá a Cidadãos → Atividade → Faturas e Recibos
+                  Procure &quot;Facturas e Recibos&quot; → &quot;Consultar&quot;
                 </li>
                 <li className="flex gap-2">
                   <span className="font-medium text-gray-900">3.</span>
-                  Selecione &quot;Recibos Verdes Emitidos&quot;
+                  Selecione o período pretendido
                 </li>
                 <li className="flex gap-2">
                   <span className="font-medium text-gray-900">4.</span>
-                  Exporte para CSV (ficheiro SIRE)
+                  Clique em &quot;EXPORTAR TABELA&quot;
                 </li>
               </ol>
             </div>

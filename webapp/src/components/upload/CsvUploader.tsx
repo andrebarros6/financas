@@ -188,9 +188,9 @@ export function CsvUploader({ onUploadComplete, onUploadError }: CsvUploaderProp
         <p className="font-medium mb-2">Como exportar do Portal AT:</p>
         <ol className="list-decimal list-inside space-y-1 text-gray-500">
           <li>Aceda ao Portal das Finanças</li>
-          <li>Vá a "Faturas e Recibos Verdes" → "Consultar"</li>
+          <li>Procure "Facturas e Recibos" → "Consultar"</li>
           <li>Selecione o período pretendido</li>
-          <li>Clique em "Exportar" → formato CSV (SIRE)</li>
+          <li>Clique em "EXPORTAR TABELA"</li>
         </ol>
       </div>
     </div>

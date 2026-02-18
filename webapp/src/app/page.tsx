@@ -1,6 +1,7 @@
-import { WaitlistForm } from "@/components/landing/WaitlistForm";
 import { DemoChart } from "@/components/landing/DemoChart";
 import { PricingSection } from "@/components/landing/PricingSection";
+import { FAQSection } from "@/components/landing/FAQSection";
+import { FeaturesSection } from "@/components/landing/FeaturesSection";
 
 export default function Home() {
   return (
@@ -35,6 +36,18 @@ export default function Home() {
             >
               Preços
             </a>
+            <a
+              href="#faq"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              FAQ
+            </a>
+            <a
+              href="/login"
+              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+            >
+              Entrar
+            </a>
           </nav>
         </div>
       </header>
@@ -43,9 +56,6 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="flex flex-col justify-center">
-            <div className="mb-4 inline-flex w-fit items-center rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-800">
-              Em breve
-            </div>
             <h1 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
               Passas recibos todos os meses. Mas sabes quem te faz{" "}
               <span className="text-green-600">ganhar mais</span>?
@@ -60,8 +70,21 @@ export default function Home() {
               melhor.
             </p>
 
-            {/* Waitlist Form */}
-            <WaitlistForm />
+            {/* CTA Buttons */}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <a
+                href="/login"
+                className="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-medium text-white hover:bg-green-700 transition-colors"
+              >
+                Começar grátis
+              </a>
+              <a
+                href="#como-funciona"
+                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Ver como funciona
+              </a>
+            </div>
 
             {/* Trust indicators */}
             <div className="mt-8 flex flex-wrap gap-4 text-sm text-gray-500">
@@ -188,8 +211,8 @@ export default function Home() {
                 Exporta do Portal das Finanças
               </h3>
               <p className="text-gray-600">
-                Vai ao Portal das Finanças, entra no e-Fatura &gt; SIRE e
-                exporta os teus recibos em CSV. Demora 30 segundos.
+                Vai ao Portal das Finanças, procura por Facturas e Recibos,
+                consulta o período desejado e exporta a tabela. Demora 30 segundos.
               </p>
             </div>
 
@@ -225,102 +248,13 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section id="funcionalidades" className="py-16 md:py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-12 text-center">
-            <h2 className="mb-4 text-3xl font-bold text-gray-900">
-              O que vais descobrir sobre o teu negócio
-            </h2>
-            <p className="text-lg text-gray-600">
-              Respostas que sempre quiseste ter, a partir dos recibos que já
-              passaste.
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Feature 1 */}
-            <div className="rounded-xl border border-gray-100 bg-white p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Rendimento por mês
-              </h3>
-              <p className="text-gray-600">
-                Vê quanto ganhaste em cada mês. Identifica a sazonalidade do
-                teu negócio e planeia os meses mais fracos.
-              </p>
-            </div>
-
-            {/* Feature 2 */}
-            <div className="rounded-xl border border-gray-100 bg-white p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Ranking de clientes
-              </h3>
-              <p className="text-gray-600">
-                Descobre quais os clientes que mais contribuem para o teu
-                rendimento. Sabe onde investir o teu tempo.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="rounded-xl border border-gray-100 bg-white p-6">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
-              </div>
-              <h3 className="mb-2 text-xl font-semibold text-gray-900">
-                Dados 100% seguros
-              </h3>
-              <p className="text-gray-600">
-                Os teus dados ficam encriptados e armazenados na União Europeia.
-                Podes apagar tudo a qualquer momento.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FeaturesSection />
 
       {/* Pricing Section */}
       <PricingSection />
+
+      {/* FAQ Section */}
+      <FAQSection />
 
       {/* Final CTA */}
       <section className="py-16 md:py-24">
@@ -329,10 +263,15 @@ export default function Home() {
             Deixa de adivinhar. Começa a saber.
           </h2>
           <p className="mb-8 text-lg text-gray-600">
-            Deixa o teu email e avisamos assim que o Painel dos Recibos estiver
-            disponível.
+            Cria a tua conta gratuita e importa os teus recibos em menos de
+            2 minutos.
           </p>
-          <WaitlistForm className="mx-auto" />
+          <a
+            href="/login"
+            className="inline-flex items-center justify-center rounded-lg bg-green-600 px-8 py-3 text-base font-medium text-white hover:bg-green-700 transition-colors"
+          >
+            Começar grátis
+          </a>
         </div>
       </section>
 

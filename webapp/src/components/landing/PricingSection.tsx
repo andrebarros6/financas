@@ -103,9 +103,12 @@ export function PricingSection() {
                 Visualização de recibos
               </li>
             </ul>
-            <div className="rounded-lg bg-gray-100 px-4 py-3 text-center text-sm text-gray-600">
-              Disponível em breve
-            </div>
+            <a
+              href="/login"
+              className="block rounded-lg bg-gray-900 px-4 py-3 text-center text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+            >
+              Começar grátis
+            </a>
           </div>
 
           {/* Pro Tier */}
@@ -150,9 +153,12 @@ export function PricingSection() {
                 7 dias de teste grátis
               </li>
             </ul>
-            <div className="rounded-lg bg-green-100 px-4 py-3 text-center text-sm font-medium text-green-800">
-              Disponível em breve
-            </div>
+            <a
+              href="/login"
+              className="block rounded-lg bg-green-600 px-4 py-3 text-center text-sm font-medium text-white hover:bg-green-700 transition-colors"
+            >
+              Experimentar grátis — 7 dias
+            </a>
           </div>
         </div>
       </div>

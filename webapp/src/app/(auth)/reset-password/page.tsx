@@ -5,16 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export default function SignupPage() {
+export default function ResetPasswordPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  async function handleEmailSignup(e: React.FormEvent) {
+  async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -32,20 +31,10 @@ export default function SignupPage() {
     }
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/callback?next=/dashboard`,
-      },
-    });
+    const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      if (error.message.includes("already registered")) {
-        setError("Este email já está registado");
-      } else {
-        setError("Erro ao criar conta. Tente novamente.");
-      }
+      setError("Erro ao atualizar a palavra-passe. Tente novamente.");
       setLoading(false);
       return;
     }
@@ -63,18 +52,17 @@ export default function SignupPage() {
           </svg>
         </div>
         <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          Verifique o seu email
+          Palavra-passe atualizada
         </h1>
         <p className="text-gray-500 mb-6">
-          Enviámos um link de confirmação para <strong>{email}</strong>.
-          Clique no link para ativar a sua conta.
+          A sua palavra-passe foi atualizada com sucesso.
         </p>
-        <Link
-          href="/login"
-          className="text-green-600 hover:text-green-700 font-medium"
+        <button
+          onClick={() => router.push("/dashboard")}
+          className="bg-green-600 text-white font-medium py-2.5 px-6 rounded-lg hover:bg-green-700 transition-colors"
         >
-          Voltar ao login
-        </Link>
+          Ir para o painel
+        </button>
       </div>
     );
   }
@@ -82,10 +70,10 @@ export default function SignupPage() {
   return (
     <div>
       <h1 className="text-2xl font-semibold text-gray-900 text-center mb-2">
-        Criar conta
+        Nova palavra-passe
       </h1>
       <p className="text-gray-500 text-center mb-6">
-        Comece a visualizar os seus recibos verdes
+        Introduza a sua nova palavra-passe
       </p>
 
       {error && (
@@ -94,26 +82,10 @@ export default function SignupPage() {
         </div>
       )}
 
-      {/* Email/Password Form */}
-      <form onSubmit={handleEmailSignup} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-            placeholder="seu@email.com"
-          />
-        </div>
-
+      <form onSubmit={handleUpdatePassword} className="space-y-4">
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Palavra-passe
+            Nova palavra-passe
           </label>
           <input
             id="password"
@@ -147,14 +119,13 @@ export default function SignupPage() {
           disabled={loading}
           className="w-full bg-green-600 text-white font-medium py-2.5 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "A criar conta..." : "Criar conta"}
+          {loading ? "A atualizar..." : "Atualizar palavra-passe"}
         </button>
       </form>
 
       <p className="text-center text-sm text-gray-600 mt-6">
-        Já tem conta?{" "}
         <Link href="/login" className="text-green-600 hover:text-green-700 font-medium">
-          Iniciar sessão
+          Voltar ao login
         </Link>
       </p>
     </div>
