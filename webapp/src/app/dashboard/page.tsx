@@ -44,7 +44,7 @@ function DashboardContent() {
     const imported = searchParams.get("imported");
     if (imported) {
       setShowSuccessMessage(true);
-      setTimeout(() => setShowSuccessMessage(false), 5000);
+      setTimeout(() => setShowSuccessMessage(false), 8000);
     }
   }, [searchParams]);
 
@@ -102,28 +102,55 @@ function DashboardContent() {
 
       {/* Success Message */}
       {showSuccessMessage && (
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
-          <svg
-            className="w-6 h-6 text-green-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <div>
-            <p className="font-medium text-green-900">
-              Recibos importados com sucesso!
-            </p>
-            <p className="text-sm text-green-700">
-              {searchParams.get("imported")} recibos foram adicionados à sua conta.
-            </p>
+        <div className="mb-6 space-y-3">
+          <div className="p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+            <svg
+              className="w-6 h-6 text-green-600 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div>
+              <p className="font-medium text-green-900">
+                Recibos importados com sucesso!
+              </p>
+              <p className="text-sm text-green-700">
+                {searchParams.get("imported")} recibos foram adicionados à sua conta.
+              </p>
+            </div>
           </div>
+          {searchParams.get("duplicates") && (
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3">
+              <svg
+                className="w-6 h-6 text-yellow-600 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <div>
+                <p className="font-medium text-yellow-900">
+                  Recibos duplicados detetados
+                </p>
+                <p className="text-sm text-yellow-700">
+                  {searchParams.get("duplicates")} recibo{Number(searchParams.get("duplicates")) !== 1 ? "s" : ""} já existente{Number(searchParams.get("duplicates")) !== 1 ? "s" : ""} {Number(searchParams.get("duplicates")) !== 1 ? "foram atualizados" : "foi atualizado"}.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -156,7 +183,7 @@ function DashboardContent() {
               Sem recibos importados
             </h2>
             <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-              Importe o ficheiro SIRE do Portal das Finanças para começar a visualizar os seus dados.
+              Importe o ficheiro do Portal das Finanças para começar a visualizar os seus dados.
             </p>
             <Link
               href="/dashboard/upload"
@@ -165,7 +192,7 @@ function DashboardContent() {
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
-              Importar ficheiro SIRE
+              Importar ficheiro do Portal das Finanças
             </Link>
           </div>
 
@@ -176,7 +203,7 @@ function DashboardContent() {
                 <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Como obter o ficheiro SIRE?
+                Como obter os seus dados?
               </h3>
               <ol className="text-sm text-gray-600 space-y-2">
                 <li className="flex gap-2">

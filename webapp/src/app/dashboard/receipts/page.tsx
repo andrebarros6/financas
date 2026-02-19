@@ -152,10 +152,10 @@ export default function ReceiptsPage() {
             Sem recibos importados
           </h2>
           <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-            Importe o ficheiro SIRE do Portal das Finanças para começar.
+            Importe o ficheiro CSV do Portal das Finanças para começar.
           </p>
           <Link href="/dashboard/upload">
-            <Button variant="primary">Importar ficheiro SIRE</Button>
+            <Button variant="primary">Importar ficheiro do Portal das Finanças </Button>
           </Link>
         </div>
       )}

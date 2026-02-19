@@ -45,15 +45,28 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Use getSession (reads from cookies, no network call) to check auth.
-  // getUser() hangs in dev on Windows/Turbopack, so we avoid it here.
-  // Client-side auth validates the token properly.
-  const { data: { session } } = await supabase.auth.getSession();
-
+  // Verify JWT with Supabase auth server (cryptographic verification).
+  // Wrapped in a 5s timeout — if it hangs, fail closed (redirect to login).
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
-  if (isProtectedRoute && !session) {
+
+  let user = null;
+  try {
+    const result = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Auth timeout")), 5000)
+      ),
+    ]);
+    user = result.data.user;
+  } catch {
+    if (isProtectedRoute) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  if (isProtectedRoute && !user) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

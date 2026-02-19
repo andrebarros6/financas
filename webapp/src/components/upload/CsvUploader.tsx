@@ -170,14 +170,14 @@ export function CsvUploader({ onUploadComplete, onUploadError }: CsvUploaderProp
               </svg>
               <div className="text-gray-700">
                 <p className="text-lg font-medium">
-                  Arraste o ficheiro SIRE aqui
+                  Arraste o ficheiro CSV do Portal das Finanças para aqui
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   ou clique para selecionar
                 </p>
               </div>
               <div className="text-xs text-gray-400 mt-2">
-                Apenas ficheiros CSV do Portal AT (SIRE)
+                Apenas ficheiros CSV do Portal das Finanças (SIRE)
               </div>
             </>
           )}
@@ -185,7 +185,7 @@ export function CsvUploader({ onUploadComplete, onUploadError }: CsvUploaderProp
       </div>
 
       <div className="mt-4 text-sm text-gray-600">
-        <p className="font-medium mb-2">Como exportar do Portal AT:</p>
+        <p className="font-medium mb-2">Como exportar do Portal das Finanças:</p>
         <ol className="list-decimal list-inside space-y-1 text-gray-500">
           <li>Aceda ao Portal das Finanças</li>
           <li>Procure "Facturas e Recibos" → "Consultar"</li>

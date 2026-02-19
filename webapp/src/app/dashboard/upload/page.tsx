@@ -53,8 +53,12 @@ export default function UploadPage() {
 
       const data = await response.json()
 
-      // Success! Redirect to dashboard
-      router.push(`/dashboard?imported=${data.count}`)
+      // Success! Redirect to dashboard with import details
+      const params = new URLSearchParams({ imported: String(data.inserted || data.count) })
+      if (data.updated > 0) {
+        params.set('duplicates', String(data.updated))
+      }
+      router.push(`/dashboard?${params.toString()}`)
     } catch (error) {
       const message =
         error instanceof Error

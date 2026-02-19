@@ -116,7 +116,7 @@ export function useAuth() {
           error: null,
         }));
         const profile = await fetchProfile(session.user.id);
-        if (!cancelled) {
+        if (!cancelled && profile) {
           setState((prev) => ({ ...prev, profile }));
         }
       } else {
@@ -141,7 +141,7 @@ export function useAuth() {
             error: null,
           }));
           const profile = await fetchProfile(session.user.id);
-          if (!cancelled) {
+          if (!cancelled && profile) {
             setState((prev) => ({ ...prev, profile }));
           }
         } else {
@@ -162,7 +162,7 @@ export function useAuth() {
           error: null,
         }));
         const profile = await fetchProfile(session.user.id);
-        if (!cancelled) {
+        if (!cancelled && profile) {
           setState((prev) => ({ ...prev, profile }));
         }
       } else if (event === "SIGNED_OUT") {

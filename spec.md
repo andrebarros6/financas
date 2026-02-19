@@ -394,7 +394,7 @@ Add third tier to make €4.99 Premium feel like obvious value:
    - Top Clients Bar Chart (configurable limit)
    - Summary statistics cards (total receipts, total amount, unique clients)
 
-### Phase 3: Subscription & Monetization 🚧 IN PROGRESS
+### Phase 3: Subscription & Monetization ✅ COMPLETED
 1. ✅ Add receipt list page
    - **Test**: View all receipts in sortable/filterable table ✅
    - **Features implemented**:
@@ -403,15 +403,21 @@ Add third tier to make €4.99 Premium feel like obvious value:
      - Pagination (25 items per page)
      - Professional table design with responsive formatting
      - Empty state and loading states
-2. ⏳ Implement Stripe integration
-   - **Test**: Complete test subscription flow
-   - Setup Stripe API keys
-   - Create subscription checkout flow
-   - Build webhook handler for subscription events
-3. ⏳ Build free tier restrictions
-   - **Test**: Free user blocked from 2nd year, premium user allowed
-   - Implement year limit check (1 year for free tier)
-   - Show upgrade prompts when limits reached
+2. ✅ Implement Stripe integration
+   - **Test**: Complete test subscription flow ✅
+   - **Features implemented**:
+     - Stripe checkout session creation (`/api/checkout`) with monthly/annual pricing
+     - Webhook handler (`/api/webhooks/stripe`) — handles `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`
+     - Billing portal (`/api/billing-portal`) — manage/cancel subscriptions via Stripe Customer Portal
+     - User metadata propagated on both session and subscription for reliable webhook lookups
+     - Promotion codes enabled at checkout
+   - **Note**: Currently on test keys. Switch to live keys in Vercel env vars before production.
+3. ✅ Build free tier restrictions
+   - **Test**: Free user sees only 1 year of data, Pro user sees all ✅
+   - **Features implemented**:
+     - `clampDateRange()` limits free tier to 1 year in dashboard view
+     - Settings page shows upgrade CTA with feature comparison
+     - Monthly (2,99€) and annual (29,90€) pricing toggle
 4. ✅ Create settings page
    - **Test**: View subscription status, manage billing ✅
    - **Features implemented**:
@@ -419,22 +425,40 @@ Add third tier to make €4.99 Premium feel like obvious value:
      - Account information display (email, member since)
      - Data deletion with two-step confirmation
      - Feature comparison for Free vs Pro tiers
-     - Upgrade CTA for free tier users
+     - Upgrade CTA with Stripe Checkout redirect
+     - Post-checkout polling (detects Pro status within 30s)
+     - Manage subscription via Stripe Customer Portal
      - Sign out functionality
-   - **Note**: Stripe customer portal integration pending Stripe setup
 
-### Phase 4: Launch
-1. Add Google Analytics
-   - **Test**: Verify events tracked in GA dashboard
-2. Set up error monitoring
-3. Deploy to production
-   - **Test**: Full user flow works on production URL
-4. Beta testing with real users
-
-### Design Decision Point
-Before building the dashboard UI (Phase 2, step 4), user will be asked:
-- **Option A**: Provide a mockup (from Mokup.ai, Figma, or manual sketch)
-- **Option B**: Let developer design based on spec (Notion-style, clean/minimal)
+### Phase 4: Launch ✅ COMPLETED
+1. ✅ Add Google Analytics
+   - **Test**: GA4 tracking active with `G-SP3F57K2D4` in layout.tsx
+   - **Note**: GA ID hardcoded — move to `NEXT_PUBLIC_GA_ID` env var (low priority)
+   - **Note**: GDPR cookie consent for EU users not yet implemented (medium priority)
+2. ✅ Production hardening (2026-02-19)
+   - **Security fixes**:
+     - Middleware switched from `getSession()` to `getUser()` with 5s timeout (fail-closed)
+     - Open redirect in `/callback` fixed (validates `next` param)
+     - Debug endpoint `/api/debug/create-profile` deleted
+     - `test-mode.ts` deleted (exposed auth bypass on `window`)
+     - Console.log leaking Supabase config removed from `client.ts`
+   - **Error handling**:
+     - Custom error pages: `not-found.tsx`, `error.tsx`, `global-error.tsx` (Portuguese)
+   - **Infrastructure**:
+     - Security headers: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`
+     - `poweredByHeader: false`
+     - `robots.ts` disallowing `/dashboard` and `/api`
+3. ⏳ Deploy to production
+   - **Remaining steps**:
+     - [ ] Switch Stripe to live keys in Stripe Dashboard
+     - [ ] Create live webhook endpoint in Stripe Dashboard (events: `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`)
+     - [ ] Set all env vars in Vercel Dashboard (see production-checklist.md for full list)
+     - [ ] Deploy via Vercel
+     - [ ] **Test**: Full user flow on production URL — signup → upload CSV → view dashboard → subscribe → verify Pro status → manage subscription
+4. ⏳ Beta testing with real users
+   - **Test**: First 10 users get founding member status
+   - Share with Portuguese freelancer communities
+   - Collect feedback, monitor error logs and GA events
 
 ---
 

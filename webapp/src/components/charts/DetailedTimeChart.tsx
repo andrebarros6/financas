@@ -7,28 +7,25 @@
  * average line and linear trendline overlays.
  */
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
-  LineElement,
-  PointElement,
   Title,
   Tooltip,
   Legend,
   type ChartOptions,
+  type Plugin,
 } from 'chart.js'
-import { Chart } from 'react-chartjs-2'
+import { Bar } from 'react-chartjs-2'
 import type { TimePeriodData } from '@/lib/dashboard/types'
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  LineElement,
-  PointElement,
   Title,
   Tooltip,
   Legend
@@ -88,66 +85,74 @@ export function DetailedTimeChart({ data }: DetailedTimeChartProps) {
     return totals.indexOf(Math.min(...totals))
   }, [totals])
 
-  const datasets: any[] = [
-    {
-      type: 'bar' as const,
-      label: 'Rendimento',
-      data: totals,
-      backgroundColor: 'rgba(59, 130, 246, 0.7)',
-      borderColor: 'rgba(59, 130, 246, 1)',
-      borderWidth: 1,
-      borderRadius: 4,
-      order: 2,
+  // Use refs so the plugin callback always reads current values
+  const overlayRef = useRef({ showAverage, average, showTrendline, trendlineValues })
+  overlayRef.current = { showAverage, average, showTrendline, trendlineValues }
+
+  // Stable plugin reference — reads from ref so Chart.js always gets current state
+  const overlayPlugin = useRef<Plugin<'bar'>>({
+    id: 'overlayLines',
+    afterDatasetsDraw(chart) {
+      const { showAverage: avg, average: avgVal, showTrendline: trend, trendlineValues: trendVals } = overlayRef.current
+      const { ctx, scales: { x, y } } = chart
+      const meta = chart.getDatasetMeta(0)
+      if (!meta || meta.data.length === 0) return
+
+      if (avg) {
+        const yPixel = y.getPixelForValue(avgVal)
+        const firstX = meta.data[0]?.x
+        const lastX = meta.data[meta.data.length - 1]?.x
+        if (firstX != null && lastX != null) {
+          ctx.save()
+          ctx.strokeStyle = 'rgba(234, 179, 8, 1)'
+          ctx.lineWidth = 2
+          ctx.setLineDash([6, 4])
+          ctx.beginPath()
+          ctx.moveTo(firstX, yPixel)
+          ctx.lineTo(lastX, yPixel)
+          ctx.stroke()
+          ctx.restore()
+        }
+      }
+
+      if (trend && trendVals.length >= 2) {
+        ctx.save()
+        ctx.strokeStyle = 'rgba(239, 68, 68, 1)'
+        ctx.lineWidth = 2
+        ctx.setLineDash([8, 4])
+        ctx.beginPath()
+        for (let i = 0; i < trendVals.length; i++) {
+          const xPixel = meta.data[i]?.x
+          const yPixel = y.getPixelForValue(trendVals[i])
+          if (xPixel == null) continue
+          if (i === 0) ctx.moveTo(xPixel, yPixel)
+          else ctx.lineTo(xPixel, yPixel)
+        }
+        ctx.stroke()
+        ctx.restore()
+      }
     },
-  ]
-
-  if (showAverage) {
-    datasets.push({
-      type: 'line' as const,
-      label: 'Média',
-      data: totals.map(() => average),
-      borderColor: 'rgba(234, 179, 8, 1)',
-      borderWidth: 2,
-      borderDash: [6, 4],
-      pointRadius: 0,
-      fill: false,
-      order: 1,
-    })
-  }
-
-  if (showTrendline) {
-    datasets.push({
-      type: 'line' as const,
-      label: 'Tendência',
-      data: trendlineValues,
-      borderColor: 'rgba(239, 68, 68, 1)',
-      borderWidth: 2,
-      borderDash: [8, 4],
-      pointRadius: 0,
-      fill: false,
-      order: 0,
-    })
-  }
+  }).current
 
   const chartData = {
     labels: data.map(d => d.label),
-    datasets,
+    datasets: [
+      {
+        label: 'Rendimento',
+        data: totals,
+        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1,
+        borderRadius: 4,
+      },
+    ],
   }
 
   const options: ChartOptions<'bar'> = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: showAverage || showTrendline,
-        position: 'bottom',
-        labels: {
-          usePointStyle: true,
-          boxWidth: 12,
-          padding: 16,
-          font: { size: 11 },
-        },
-      },
+      legend: { display: false },
       title: { display: false },
       tooltip: {
         callbacks: {
@@ -157,12 +162,6 @@ export function DetailedTimeChart({ data }: DetailedTimeChartProps) {
               style: 'currency',
               currency: 'EUR',
             })
-            if (context.dataset.label === 'Média') {
-              return `Média: ${formatted}`
-            }
-            if (context.dataset.label === 'Tendência') {
-              return `Tendência: ${formatted}`
-            }
             const index = context.dataIndex
             const count = data[index]?.count ?? 0
             return [
@@ -228,7 +227,7 @@ export function DetailedTimeChart({ data }: DetailedTimeChartProps) {
         </div>
       </div>
       <div className="h-96">
-        <Chart type="bar" data={chartData} options={options} />
+        <Bar data={chartData} options={options} plugins={[overlayPlugin]} />
       </div>
       {/* Stats summary */}
       {data.length > 0 && (
