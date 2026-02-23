@@ -11,6 +11,10 @@ credentials*.json
 
 # Sample data with personal info (CSV exports, notebooks with real data)
 financas/
+*.csv
+
+# Windows artifacts
+nul
 
 # IDE
 .vscode/

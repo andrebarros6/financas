@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { CookiePreferences } from "@/components/CookiePreferences";
+import { getStoredConsent } from "@/lib/cookies/consentManager";
 
 const navigation = [
   {
@@ -51,6 +54,7 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const { user, profile, signOut, isPro, loading } = useAuth();
+  const [showCookiePrefs, setShowCookiePrefs] = useState(false);
 
   if (loading) {
     return (
@@ -152,6 +156,30 @@ export default function DashboardLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 bg-white py-4 mt-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-gray-400">
+          <Link href="/cookies" className="hover:text-gray-600 transition-colors">
+            Política de Cookies
+          </Link>
+          <span className="text-gray-200">·</span>
+          <button
+            onClick={() => setShowCookiePrefs(true)}
+            className="hover:text-gray-600 transition-colors"
+          >
+            Preferências de Cookies
+          </button>
+        </div>
+      </footer>
+
+      {showCookiePrefs && (
+        <CookiePreferences
+          current={getStoredConsent() ?? { essential: true, analytics: false, marketing: false, timestamp: '' }}
+          onClose={() => setShowCookiePrefs(false)}
+          onSaved={() => setShowCookiePrefs(false)}
+        />
+      )}
     </div>
   );
 }

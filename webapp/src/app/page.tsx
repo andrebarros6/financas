@@ -2,6 +2,7 @@ import { DemoChart } from "@/components/landing/DemoChart";
 import { PricingSection } from "@/components/landing/PricingSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
+import { LandingFooter } from "@/components/landing/LandingFooter";
 
 export default function Home() {
   return (
@@ -275,24 +276,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white py-8">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-green-600">
-                <span className="text-sm font-bold text-white">P</span>
-              </div>
-              <span className="text-sm text-gray-600">
-                Painel dos Recibos
-              </span>
-            </div>
-            <p className="text-sm text-gray-500">
-              © {new Date().getFullYear()} Todos os direitos reservados.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }
