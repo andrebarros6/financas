@@ -19,11 +19,12 @@ interface DashboardToolbarProps {
 
 type TimeRangeOption = 'last-12' | 'all' | 'custom' | number
 
-const TABS: { key: DashboardTab; label: string }[] = [
+const TABS: { key: DashboardTab; label: string; proOnly?: boolean }[] = [
   { key: 'overview', label: 'Visão Geral' },
   { key: 'time-detail', label: 'Detalhe Temporal' },
   { key: 'total-per-client', label: 'Detalhe Clientes' },
   { key: 'per-client', label: 'Período x Cliente' },
+  { key: 'year-comparison', label: 'Comparação Anual', proOnly: true },
   { key: 'receipts', label: 'Recibos' },
 ]
 
@@ -131,19 +132,30 @@ export function DashboardToolbar({
     <div className="space-y-4">
       {/* Tab Switcher */}
       <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
-        {TABS.map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => onTabChange(tab.key)}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === tab.key
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {TABS.map(tab => {
+          const locked = tab.proOnly && !isPro
+          return (
+            <button
+              key={tab.key}
+              onClick={() => !locked && onTabChange(tab.key)}
+              title={locked ? 'Disponível no plano Pro' : undefined}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${
+                activeTab === tab.key
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : locked
+                  ? 'text-gray-400 cursor-not-allowed'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              {tab.label}
+              {locked && (
+                <svg className="w-3 h-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       {/* Time Controls */}

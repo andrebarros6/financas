@@ -178,6 +178,25 @@ export function getYearDateRange(year: number): DateRange {
   }
 }
 
+/** Compute the equivalent prior period for a given date range (same duration, shifted back) */
+export function getPreviousPeriodRange(range: DateRange): DateRange {
+  const durationMs = range.endDate.getTime() - range.startDate.getTime()
+  return {
+    startDate: new Date(range.startDate.getTime() - durationMs - 1),
+    endDate: new Date(range.startDate.getTime() - 1),
+  }
+}
+
+/** Compute summary stats for the previous equivalent period */
+export function computePreviousPeriodStats(
+  receipts: Receipt[],
+  currentRange: DateRange
+): SummaryStatsData {
+  const prevRange = getPreviousPeriodRange(currentRange)
+  const prevReceipts = filterByDateRange(receipts, prevRange)
+  return computeSummaryStats(prevReceipts)
+}
+
 /** Build a date range covering all available data */
 export function getAllTimeDateRange(receipts: Receipt[]): DateRange {
   if (receipts.length === 0) return getDefaultDateRange()

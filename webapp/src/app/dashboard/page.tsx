@@ -13,6 +13,7 @@ import {
   filterByPeriod,
   filterByClient,
   computeSummaryStats,
+  computePreviousPeriodStats,
   getAvailableYears,
 } from "@/lib/dashboard/filters";
 import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
@@ -22,6 +23,7 @@ import { PerClientTab } from "@/components/dashboard/PerClientTab";
 import { TotalPerClientTab } from "@/components/dashboard/TotalPerClientTab";
 import { DetailedTimeTab } from "@/components/dashboard/DetailedTimeTab";
 import { ReceiptsTab } from "@/components/dashboard/ReceiptsTab";
+import { YearComparisonTab } from "@/components/dashboard/YearComparisonTab";
 
 function DashboardContent() {
   const { profile, isPro } = useAuth();
@@ -73,6 +75,12 @@ function DashboardContent() {
   const stats = useMemo(
     () => computeSummaryStats(fullyFilteredReceipts),
     [fullyFilteredReceipts]
+  );
+
+  // Previous period stats for KPI deltas (uses all receipts, not cross-filtered)
+  const previousStats = useMemo(
+    () => computePreviousPeriodStats(receipts, effectiveDateRange),
+    [receipts, effectiveDateRange]
   );
 
   const availableYears = useMemo(() => getAvailableYears(receipts), [receipts]);
@@ -281,6 +289,9 @@ function DashboardContent() {
             totalReceipts={stats.totalReceipts}
             totalBilled={stats.totalBilled}
             uniqueClients={stats.uniqueClients}
+            previousTotalReceipts={previousStats.totalReceipts}
+            previousTotalBilled={previousStats.totalBilled}
+            previousUniqueClients={previousStats.uniqueClients}
           />
 
           {/* Tab Content */}
@@ -309,6 +320,13 @@ function DashboardContent() {
 
           {activeTab === "total-per-client" && (
             <TotalPerClientTab receipts={dateFilteredReceipts} />
+          )}
+
+          {activeTab === "year-comparison" && (
+            <YearComparisonTab
+              receipts={receipts}
+              availableYears={availableYears}
+            />
           )}
 
           {activeTab === "receipts" && (

@@ -1,6 +1,6 @@
 import type { Receipt } from '@/hooks/useReceipts'
 
-export type DashboardTab = 'overview' | 'per-client' | 'total-per-client' | 'time-detail' | 'receipts'
+export type DashboardTab = 'overview' | 'per-client' | 'total-per-client' | 'time-detail' | 'receipts' | 'year-comparison'
 
 export type TimeMode = 'month' | 'year'
 

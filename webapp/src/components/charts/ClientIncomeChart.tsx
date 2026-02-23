@@ -48,6 +48,11 @@ export function ClientIncomeChart({
 }: ClientIncomeChartProps) {
   const chartRef = useRef<any>(null)
 
+  const grandTotal = useMemo(
+    () => receipts.reduce((s, r) => s + r.totalDocumento, 0),
+    [receipts]
+  )
+
   const clientData = useMemo(() => {
     // Group receipts by client
     const dataByClient = receipts.reduce<Record<string, ClientData>>((acc, receipt) => {
@@ -149,11 +154,13 @@ export function ClientIncomeChart({
             const value = context.parsed.x ?? 0
             const index = context.dataIndex
             const count = clientData[index].count
+            const share = grandTotal > 0 ? (value / grandTotal) * 100 : 0
             return [
               `Rendimento: ${value.toLocaleString('pt-PT', {
                 style: 'currency',
                 currency: 'EUR',
               })}`,
+              `Quota: ${share.toFixed(1)}% do total`,
               `Recibos: ${count}`,
               `NIF: ${clientData[index].nif}`,
             ]
@@ -201,32 +208,73 @@ export function ClientIncomeChart({
         <Bar ref={chartRef} data={data} options={options} onClick={handleClick} />
       </div>
       {clientStats && (
-        <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <p className="text-gray-500">Média</p>
-            <p className="font-semibold text-gray-900">
-              {clientStats.average.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-            </p>
+        <>
+          <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="text-gray-500">Média</p>
+              <p className="font-semibold text-gray-900">
+                {clientStats.average.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">Máximo</p>
+              <p className="font-semibold text-gray-900">
+                {clientData[clientStats.maxIndex].total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+              </p>
+              <p className="text-xs text-gray-400">{clientData[clientStats.maxIndex].name}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Mínimo</p>
+              <p className="font-semibold text-gray-900">
+                {clientData[clientStats.minIndex].total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+              </p>
+              <p className="text-xs text-gray-400">{clientData[clientStats.minIndex].name}</p>
+            </div>
+            <div>
+              <p className="text-gray-500">Clientes</p>
+              <p className="font-semibold text-gray-900">{clientData.length}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-gray-500">Máximo</p>
-            <p className="font-semibold text-gray-900">
-              {clientData[clientStats.maxIndex].total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-            </p>
-            <p className="text-xs text-gray-400">{clientData[clientStats.maxIndex].name}</p>
+
+          {/* Per-client share table */}
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-gray-500 uppercase tracking-wide">
+                  <th className="pb-2 font-medium">Cliente</th>
+                  <th className="pb-2 font-medium text-right">Faturado</th>
+                  <th className="pb-2 font-medium text-right">Quota</th>
+                  <th className="pb-2 font-medium text-right pr-1">Recibos</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {clientData.map((c) => {
+                  const share = grandTotal > 0 ? (c.total / grandTotal) * 100 : 0
+                  return (
+                    <tr key={c.nif} className="hover:bg-gray-50">
+                      <td className="py-2 text-gray-800 max-w-[200px] truncate" title={c.name}>{c.name}</td>
+                      <td className="py-2 text-right text-gray-900 font-medium">
+                        {c.total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                      </td>
+                      <td className="py-2 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="w-16 bg-gray-100 rounded-full h-1.5 hidden sm:block">
+                            <div
+                              className="bg-yellow-400 h-1.5 rounded-full"
+                              style={{ width: `${share}%` }}
+                            />
+                          </div>
+                          <span className="text-gray-700 font-medium w-12 text-right">{share.toFixed(1)}%</span>
+                        </div>
+                      </td>
+                      <td className="py-2 text-right text-gray-500 pr-1">{c.count}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-          <div>
-            <p className="text-gray-500">Mínimo</p>
-            <p className="font-semibold text-gray-900">
-              {clientData[clientStats.minIndex].total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-            </p>
-            <p className="text-xs text-gray-400">{clientData[clientStats.minIndex].name}</p>
-          </div>
-          <div>
-            <p className="text-gray-500">Clientes</p>
-            <p className="font-semibold text-gray-900">{clientData.length}</p>
-          </div>
-        </div>
+        </>
       )}
     </div>
   )
