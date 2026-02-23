@@ -19,13 +19,25 @@ import { SIRE_CSV_HEADERS, SIRE_CSV_COLUMN_COUNT } from '@/types/receipt'
 
 /**
  * Parse European decimal format to number
- * Converts "1.391,61" to 1391.61
+ * Converts "1.391,61" → 1391.61, "2.500" → 2500, "937,87" → 937.87
  */
 export function parseEuropeanDecimal(value: string): number {
   if (!value || value.trim() === '') return 0
 
-  // Remove thousands separator (.) and replace decimal separator (,) with .
-  const normalized = value.trim().replace(/\./g, '').replace(',', '.')
+  const trimmed = value.trim()
+
+  // If value contains a comma it's unambiguously European (comma = decimal separator)
+  if (trimmed.includes(',')) {
+    // Remove all dots (thousands separators), replace comma with dot
+    const normalized = trimmed.replace(/\./g, '').replace(',', '.')
+    const parsed = parseFloat(normalized)
+    if (isNaN(parsed)) throw new Error(`Formato decimal inválido: ${value}`)
+    return parsed
+  }
+
+  // No comma: dots can only be thousands separators (e.g. "2.500", "1.000")
+  // or there are no separators at all (plain integer like "175")
+  const normalized = trimmed.replace(/\./g, '')
   const parsed = parseFloat(normalized)
 
   if (isNaN(parsed)) {
@@ -62,6 +74,21 @@ export function removeBOM(text: string): string {
 }
 
 /**
+ * Parse a field that may be empty, a text flag (e.g. "Não"), or a numeric value.
+ * Returns null for empty or non-numeric content, otherwise parses as a number.
+ */
+function parseOptionalNumeric(value: string): number | null {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) return null
+  // Attempt to parse — if the field contains text like "Não", it won't be numeric
+  try {
+    return parseEuropeanDecimal(trimmed)
+  } catch {
+    return null
+  }
+}
+
+/**
  * Parse a single CSV line into a receipt object
  */
 function parseReceiptLine(fields: string[], lineNumber: number): ParsedReceipt {
@@ -92,7 +119,8 @@ function parseReceiptLine(fields: string[], lineNumber: number): ParsedReceipt {
     // Financial values
     valorTributavel: parseEuropeanDecimal(fields[10]),
     valorIva: parseEuropeanDecimal(fields[11]),
-    impostoSeloRetencao: fields[12].trim() ? parseEuropeanDecimal(fields[12]) : null,
+    // Col 12 can be empty, a number, or a text flag like "Não" — treat non-numeric as null
+    impostoSeloRetencao: parseOptionalNumeric(fields[12]),
     valorImpostoSelo: parseEuropeanDecimal(fields[13]),
     valorIrs: parseEuropeanDecimal(fields[14]),
     totalImpostos: fields[15].trim() ? parseEuropeanDecimal(fields[15]) : null,
@@ -109,10 +137,6 @@ function parseReceiptLine(fields: string[], lineNumber: number): ParsedReceipt {
 
   if (!receipt.nifAdquirente) {
     throw new Error('NIF do Adquirente é obrigatório')
-  }
-
-  if (!receipt.nomeAdquirente) {
-    throw new Error('Nome do Adquirente é obrigatório')
   }
 
   return receipt

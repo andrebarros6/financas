@@ -45,6 +45,18 @@ describe('parseEuropeanDecimal', () => {
   it('parses integer without decimal part', () => {
     expect(parseEuropeanDecimal('1000')).toBe(1000)
   })
+
+  it('parses dot-only thousands with no comma (e.g. "2.500")', () => {
+    expect(parseEuropeanDecimal('2.500')).toBe(2500)
+  })
+
+  it('parses "2.000" as 2000', () => {
+    expect(parseEuropeanDecimal('2.000')).toBe(2000)
+  })
+
+  it('parses partial decimal without trailing zero (e.g. "87,5")', () => {
+    expect(parseEuropeanDecimal('87,5')).toBe(87.5)
+  })
 })
 
 describe('parseDate', () => {
@@ -277,6 +289,33 @@ describe('parseSireCSV', () => {
     expect(result.receipts).toHaveLength(1)
     expect(result.receipts[0].paisAdquirente).toBeNull()
     expect(result.receipts[0].totalImpostos).toBeNull()
+  })
+
+  it('treats "Não" in impostoSeloRetencao field as null', () => {
+    const header = SIRE_CSV_HEADERS.join(';')
+    // Col 12 contains "Não" instead of a number
+    const line = 'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;999999990;Consumidor Final;2500;0;Não;0;0;;2500;0;0;2500'
+    const csv = `${header}\n${line}`
+
+    const result = parseSireCSV(csv)
+
+    expect(result.success).toBe(true)
+    expect(result.receipts).toHaveLength(1)
+    expect(result.receipts[0].impostoSeloRetencao).toBeNull()
+    expect(result.receipts[0].totalDocumento).toBe(2500)
+  })
+
+  it('accepts rows with empty nomeAdquirente', () => {
+    const header = SIRE_CSV_HEADERS.join(';')
+    // Col 9 (Nome do Adquirente) is empty
+    const line = 'FR001;Fatura-Recibo;ATCUD001;Emitido;;2024-01-15;2024-01-15;PORTUGAL;999999990;;500;0;Não;0;0;;500;0;0;500'
+    const csv = `${header}\n${line}`
+
+    const result = parseSireCSV(csv)
+
+    expect(result.success).toBe(true)
+    expect(result.receipts).toHaveLength(1)
+    expect(result.receipts[0].nomeAdquirente).toBe('')
   })
 
   it('rejects missing required fields', () => {
