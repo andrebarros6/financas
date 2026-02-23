@@ -1,10 +1,25 @@
 'use client'
 
 import { useMemo } from 'react'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  type ChartOptions,
+} from 'chart.js'
+import { Bar } from 'react-chartjs-2'
 import type { Receipt } from '@/hooks/useReceipts'
+import type { TimeMode } from '@/lib/dashboard/types'
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 interface ReceiptsTabProps {
   receipts: Receipt[]
+  timeMode: TimeMode
 }
 
 const MONTHS_PT = [
@@ -16,7 +31,7 @@ function formatCurrency(value: number): string {
   return value.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })
 }
 
-export function ReceiptsTab({ receipts }: ReceiptsTabProps) {
+export function ReceiptsTab({ receipts, timeMode }: ReceiptsTabProps) {
   const topReceipts = useMemo(() => {
     return [...receipts]
       .sort((a, b) => b.totalDocumento - a.totalDocumento)
@@ -58,6 +73,64 @@ export function ReceiptsTab({ receipts }: ReceiptsTabProps) {
       .slice(0, 3)
   }, [receipts])
 
+  // Receipts per period (month or year) for the bar chart
+  const countByPeriod = useMemo(() => {
+    const map: Record<string, { label: string; count: number }> = {}
+    for (const r of receipts) {
+      const d = new Date(r.dataTransacao)
+      let key: string
+      let label: string
+      if (timeMode === 'year') {
+        key = String(d.getFullYear())
+        label = key
+      } else {
+        key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+        label = `${MONTHS_PT[d.getMonth()].slice(0, 3)} ${d.getFullYear()}`
+      }
+      if (!map[key]) map[key] = { label, count: 0 }
+      map[key].count += 1
+    }
+    return Object.entries(map)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, v]) => v)
+  }, [receipts, timeMode])
+
+  const countChartData = {
+    labels: countByPeriod.map(p => p.label),
+    datasets: [
+      {
+        label: 'Recibos',
+        data: countByPeriod.map(p => p.count),
+        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1,
+        borderRadius: 4,
+      },
+    ],
+  }
+
+  const countChartOptions: ChartOptions<'bar'> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: { display: false },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.parsed.y} ${ctx.parsed.y === 1 ? 'recibo' : 'recibos'}`,
+        },
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { stepSize: 1, precision: 0 },
+        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+      },
+      x: { grid: { display: false } },
+    },
+  }
+
   return (
     <div className="space-y-6">
       {/* Top 5 Highest Receipts */}
@@ -92,6 +165,19 @@ export function ReceiptsTab({ receipts }: ReceiptsTabProps) {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Receipts count per period bar chart */}
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 className="text-base font-semibold text-gray-900 mb-1">
+          Número de recibos por período
+        </h3>
+        <p className="text-sm text-gray-500 mb-4">
+          {timeMode === 'month' ? 'Agrupado por mês' : 'Agrupado por ano'}
+        </p>
+        <div className="h-64">
+          <Bar data={countChartData} options={countChartOptions} />
         </div>
       </div>
 

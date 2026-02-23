@@ -231,36 +231,77 @@ export function DetailedTimeChart({ data }: DetailedTimeChartProps) {
       </div>
       {/* Stats summary */}
       {data.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-          <div>
-            <p className="text-gray-500">Média</p>
-            <p className="font-semibold text-gray-900">
-              {average.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-            </p>
+        <>
+          <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="text-gray-500">Média</p>
+              <p className="font-semibold text-gray-900">
+                {average.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">Máximo</p>
+              <p className="font-semibold text-gray-900">
+                {Math.max(...totals).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+              </p>
+              {maxIndex >= 0 && (
+                <p className="text-xs text-gray-400">{data[maxIndex].label}</p>
+              )}
+            </div>
+            <div>
+              <p className="text-gray-500">Mínimo</p>
+              <p className="font-semibold text-gray-900">
+                {Math.min(...totals).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+              </p>
+              {minIndex >= 0 && (
+                <p className="text-xs text-gray-400">{data[minIndex].label}</p>
+              )}
+            </div>
+            <div>
+              <p className="text-gray-500">Períodos</p>
+              <p className="font-semibold text-gray-900">{data.length}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-gray-500">Máximo</p>
-            <p className="font-semibold text-gray-900">
-              {Math.max(...totals).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-            </p>
-            {maxIndex >= 0 && (
-              <p className="text-xs text-gray-400">{data[maxIndex].label}</p>
-            )}
+          {/* Per-period quota table */}
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs text-gray-500 uppercase tracking-wide">
+                  <th className="pb-2 font-medium">Período</th>
+                  <th className="pb-2 font-medium text-right">Rendimento</th>
+                  <th className="pb-2 font-medium text-right">Quota</th>
+                  <th className="pb-2 font-medium text-right pr-1">Recibos</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {data.map((d) => {
+                  const grandTotal = totals.reduce((sum, v) => sum + v, 0)
+                  const share = grandTotal > 0 ? (d.total / grandTotal) * 100 : 0
+                  return (
+                    <tr key={d.periodKey} className="hover:bg-gray-50">
+                      <td className="py-2 text-gray-800">{d.label}</td>
+                      <td className="py-2 text-right text-gray-900 font-medium">
+                        {d.total.toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
+                      </td>
+                      <td className="py-2 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="w-16 bg-gray-100 rounded-full h-1.5 hidden sm:block">
+                            <div
+                              className="bg-blue-400 h-1.5 rounded-full"
+                              style={{ width: `${share}%` }}
+                            />
+                          </div>
+                          <span className="text-gray-700 font-medium w-12 text-right">{share.toFixed(1)}%</span>
+                        </div>
+                      </td>
+                      <td className="py-2 text-right text-gray-500 pr-1">{d.count}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-          <div>
-            <p className="text-gray-500">Mínimo</p>
-            <p className="font-semibold text-gray-900">
-              {Math.min(...totals).toLocaleString('pt-PT', { style: 'currency', currency: 'EUR' })}
-            </p>
-            {minIndex >= 0 && (
-              <p className="text-xs text-gray-400">{data[minIndex].label}</p>
-            )}
-          </div>
-          <div>
-            <p className="text-gray-500">Períodos</p>
-            <p className="font-semibold text-gray-900">{data.length}</p>
-          </div>
-        </div>
+        </>
       )}
     </div>
   )

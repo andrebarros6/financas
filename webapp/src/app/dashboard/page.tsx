@@ -330,7 +330,7 @@ function DashboardContent() {
           )}
 
           {activeTab === "receipts" && (
-            <ReceiptsTab receipts={dateFilteredReceipts} />
+            <ReceiptsTab receipts={dateFilteredReceipts} timeMode={timeMode} />
           )}
         </div>
       )}
