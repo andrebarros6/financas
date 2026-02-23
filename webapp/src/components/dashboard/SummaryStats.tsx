@@ -38,8 +38,9 @@ export function SummaryStats({
         <p className="text-sm text-gray-600 mb-1">Total de Recibos</p>
         <p className="text-3xl font-bold text-gray-900">{totalReceipts}</p>
         {previousTotalReceipts !== undefined && (
-          <div className="mt-2">
+          <div className="mt-2 flex items-center gap-2">
             <Delta current={totalReceipts} previous={previousTotalReceipts} />
+            <span className="text-xs text-gray-400">vs último período</span>
           </div>
         )}
       </div>
@@ -52,8 +53,9 @@ export function SummaryStats({
           })}
         </p>
         {previousTotalBilled !== undefined && (
-          <div className="mt-2">
+          <div className="mt-2 flex items-center gap-2">
             <Delta current={totalBilled} previous={previousTotalBilled} />
+            <span className="text-xs text-gray-400">vs último período</span>
           </div>
         )}
       </div>
@@ -61,8 +63,9 @@ export function SummaryStats({
         <p className="text-sm text-gray-600 mb-1">Clientes Únicos</p>
         <p className="text-3xl font-bold text-gray-900">{uniqueClients}</p>
         {previousUniqueClients !== undefined && (
-          <div className="mt-2">
+          <div className="mt-2 flex items-center gap-2">
             <Delta current={uniqueClients} previous={previousUniqueClients} />
+            <span className="text-xs text-gray-400">vs último período</span>
           </div>
         )}
       </div>
