@@ -31,3 +31,4 @@ __pycache__/
 
 # Jupyter notebooks with potentially sensitive data
 *.ipynb
+.vercel
