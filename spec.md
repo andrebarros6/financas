@@ -351,9 +351,18 @@ Add third tier to make €4.99 Premium feel like obvious value:
 - Tax estimation/projections
 - Mobile app
 - Multi-language support
-- Blog/educational content
 - Email notifications
 - API access
+
+### Planned: Blog (`/blog`)
+- SEO-driven content hub targeting Portuguese freelancer search queries
+- 3 articles already drafted in `articles/`:
+  - `como-exportar-recibos-verdes-portal-at.md`
+  - `como-analisar-ficheiro-sire.md`
+  - `calcular-retencao-na-fonte-recibos-verdes.md`
+- Implementation: Next.js MDX or markdown-based blog under `/blog` route
+- Domain: currently hosted at `paineldosrecibos.barrosbuilds.com` (final domain TBD)
+- Priority: after production deployment is stable
 
 ---
 
