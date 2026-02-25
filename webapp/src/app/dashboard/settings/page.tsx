@@ -19,6 +19,9 @@ function SettingsContent() {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralStats, setReferralStats] = useState<{ count: number; monthsEarned: number } | null>(null);
+  const [referralCopied, setReferralCopied] = useState(false);
 
   // Track whether we came from a successful checkout
   const [pendingProPoll, setPendingProPoll] = useState(false);
@@ -58,6 +61,34 @@ function SettingsContent() {
     poll(0);
     return () => { cancelled = true; };
   }, [pendingProPoll, user, isPro, refreshProfile]);
+
+  // Fetch referral code and stats once the user is available
+  useEffect(() => {
+    if (!user) return;
+    Promise.all([
+      fetch("/api/referral/generate").then((r) => r.json()),
+      fetch("/api/referral/stats").then((r) => r.json()),
+    ])
+      .then(([codeData, statsData]) => {
+        if (codeData.code) setReferralCode(codeData.code);
+        if (typeof statsData.count === "number") setReferralStats(statsData);
+      })
+      .catch(() => {
+        // Non-critical: silently ignore referral fetch failures
+      });
+  }, [user]);
+
+  const handleCopyReferral = async () => {
+    if (!referralCode) return;
+    const link = `${window.location.origin}/signup?ref=${referralCode}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setReferralCopied(true);
+      setTimeout(() => setReferralCopied(false), 2000);
+    } catch {
+      // Clipboard API unavailable — silently ignore
+    }
+  };
 
   const handleDeleteAllData = async () => {
     if (!showDeleteConfirm) {
@@ -446,6 +477,63 @@ function SettingsContent() {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Referral Program */}
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Programa de Referência
+            </h2>
+          </div>
+          <div className="px-6 py-4 space-y-4">
+            <p className="text-sm text-gray-600">
+              Convide amigos e ganhe 1 mês de Pro por cada conta criada com o
+              seu link.
+            </p>
+
+            {referralCode ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <input
+                    readOnly
+                    value={`${typeof window !== "undefined" ? window.location.origin : ""}/signup?ref=${referralCode}`}
+                    className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-700 truncate"
+                  />
+                  <Button variant="outline" size="sm" onClick={handleCopyReferral}>
+                    {referralCopied ? "Copiado!" : "Copiar"}
+                  </Button>
+                </div>
+
+                {referralStats && (
+                  <div className="grid grid-cols-2 gap-4 pt-1">
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-2xl font-bold text-gray-900">
+                        {referralStats.count}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {referralStats.count === 1
+                          ? "amigo convidado"
+                          : "amigos convidados"}
+                      </p>
+                    </div>
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <p className="text-2xl font-bold text-green-700">
+                        {referralStats.monthsEarned}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {referralStats.monthsEarned === 1
+                          ? "mês ganho"
+                          : "meses ganhos"}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="h-10 bg-gray-100 rounded-lg animate-pulse" />
+            )}
           </div>
         </div>
 

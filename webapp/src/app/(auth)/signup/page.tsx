@@ -1,18 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export default function SignupPage() {
+function SignupContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  // Persist the referral code in a cookie so it survives the email confirmation redirect
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref && /^[A-Z2-9]{8}$/i.test(ref)) {
+      document.cookie = `ref_code=${encodeURIComponent(ref.toUpperCase())}; path=/; max-age=1800; SameSite=Lax`;
+    }
+  }, [searchParams]);
 
   async function handleEmailSignup(e: React.FormEvent) {
     e.preventDefault();
@@ -158,5 +168,13 @@ export default function SignupPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupContent />
+    </Suspense>
   );
 }

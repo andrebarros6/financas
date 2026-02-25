@@ -5,6 +5,7 @@
 
 export type SubscriptionTier = 'free' | 'pro'
 export type SubscriptionInterval = 'monthly' | 'annual'
+export type ReferralStatus = 'pending' | 'rewarded' | 'invalid'
 
 export interface Database {
   public: {
@@ -21,6 +22,7 @@ export interface Database {
           stripe_subscription_id: string | null
           subscription_interval: SubscriptionInterval | null
           is_founding_member: boolean
+          referral_code: string | null
         }
         Insert: {
           id: string
@@ -33,6 +35,7 @@ export interface Database {
           stripe_subscription_id?: string | null
           subscription_interval?: SubscriptionInterval | null
           is_founding_member?: boolean
+          referral_code?: string | null
         }
         Update: {
           id?: string
@@ -45,6 +48,7 @@ export interface Database {
           stripe_subscription_id?: string | null
           subscription_interval?: SubscriptionInterval | null
           is_founding_member?: boolean
+          referral_code?: string | null
         }
       }
       receipts: {
@@ -132,6 +136,35 @@ export interface Database {
           updated_at?: string
         }
       }
+      referrals: {
+        Row: {
+          id: string
+          referrer_id: string
+          referee_id: string
+          code_used: string
+          status: ReferralStatus
+          rewarded_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          referrer_id: string
+          referee_id: string
+          code_used: string
+          status?: ReferralStatus
+          rewarded_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          referrer_id?: string
+          referee_id?: string
+          code_used?: string
+          status?: ReferralStatus
+          rewarded_at?: string | null
+          created_at?: string
+        }
+      }
       waitlist: {
         Row: {
           id: string
@@ -165,6 +198,10 @@ export interface Database {
         Args: { user_uuid: string }
         Returns: number[]
       }
+      grant_referral_reward: {
+        Args: { p_referral_id: string }
+        Returns: void
+      }
     }
     Enums: {
       [_ in never]: never
@@ -186,3 +223,6 @@ export type ReceiptUpdate = Database['public']['Tables']['receipts']['Update']
 
 export type WaitlistEntry = Database['public']['Tables']['waitlist']['Row']
 export type WaitlistInsert = Database['public']['Tables']['waitlist']['Insert']
+
+export type Referral = Database['public']['Tables']['referrals']['Row']
+export type ReferralInsert = Database['public']['Tables']['referrals']['Insert']
