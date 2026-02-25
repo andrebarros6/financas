@@ -63,6 +63,13 @@ export async function POST(request: NextRequest) {
 
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL;
 
+    // Only grant trial if this customer has never had a subscription before
+    const priorSubs = await stripe.subscriptions.list({
+      customer: customerId,
+      limit: 1,
+    });
+    const isFirstSubscription = priorSubs.data.length === 0;
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
@@ -78,6 +85,7 @@ export async function POST(request: NextRequest) {
       success_url: `${origin}/dashboard/settings?checkout=success`,
       cancel_url: `${origin}/dashboard/settings?checkout=cancelled`,
       subscription_data: {
+        ...(isFirstSubscription && { trial_period_days: 14 }),
         metadata: {
           supabase_user_id: user.id,
         },
