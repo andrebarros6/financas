@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,6 +55,22 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { user, profile, signOut, isPro, loading } = useAuth();
   const [showCookiePrefs, setShowCookiePrefs] = useState(false);
+  const [showEarlyAdopterBanner, setShowEarlyAdopterBanner] = useState(false);
+
+  // Determine if we should show the early adopter banner.
+  // Show when: user has timed Pro (not founding member / lifetime), account < 7 days old,
+  // and they haven't dismissed the banner yet.
+  useEffect(() => {
+    if (!profile) return;
+    const isEarlyAdopter =
+      profile.subscription_tier === "pro" &&
+      profile.subscription_expires_at != null &&
+      !profile.is_founding_member;
+    if (!isEarlyAdopter) return;
+
+    const dismissed = localStorage.getItem("early_adopter_banner_dismissed");
+    if (!dismissed) setShowEarlyAdopterBanner(true);
+  }, [profile]);
 
   if (loading) {
     return (
@@ -151,6 +167,29 @@ export default function DashboardLayout({
           })}
         </nav>
       </header>
+
+      {/* Early Adopter Banner */}
+      {showEarlyAdopterBanner && (
+        <div className="bg-green-600 text-white px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+            <p className="text-sm font-medium">
+              Bem-vindo! Como early adopter, tem <strong>1 ano de Pro grátis</strong> ativado na sua conta.
+            </p>
+            <button
+              onClick={() => {
+                localStorage.setItem("early_adopter_banner_dismissed", "1");
+                setShowEarlyAdopterBanner(false);
+              }}
+              className="shrink-0 text-white/80 hover:text-white transition-colors"
+              aria-label="Fechar"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
