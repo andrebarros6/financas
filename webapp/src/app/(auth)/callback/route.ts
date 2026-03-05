@@ -68,12 +68,13 @@ export async function GET(request: Request) {
           { auth: { persistSession: false } }
         );
 
-        adminSupabase
-          .from("users")
-          .select("subscription_tier, subscription_expires_at, created_at")
-          .eq("id", newUserId)
-          .single()
-          .then(({ data: userRow }) => {
+        Promise.resolve(
+          adminSupabase
+            .from("users")
+            .select("subscription_tier, subscription_expires_at, created_at")
+            .eq("id", newUserId)
+            .single()
+        ).then(({ data: userRow }) => {
             if (!userRow) return;
 
             // Only send if: they have Pro, it expires (not lifetime), and the
