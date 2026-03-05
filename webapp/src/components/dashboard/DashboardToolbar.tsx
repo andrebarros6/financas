@@ -25,6 +25,7 @@ const TABS: { key: DashboardTab; label: string; proOnly?: boolean }[] = [
   { key: 'total-per-client', label: 'Detalhe Clientes' },
   { key: 'per-client', label: 'Período x Cliente' },
   { key: 'year-comparison', label: 'Comparação Anual', proOnly: true },
+  { key: 'tax', label: 'Fiscal' },
   { key: 'receipts', label: 'Recibos' },
 ]
 

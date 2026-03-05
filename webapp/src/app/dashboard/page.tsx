@@ -24,6 +24,7 @@ import { TotalPerClientTab } from "@/components/dashboard/TotalPerClientTab";
 import { DetailedTimeTab } from "@/components/dashboard/DetailedTimeTab";
 import { ReceiptsTab } from "@/components/dashboard/ReceiptsTab";
 import { YearComparisonTab } from "@/components/dashboard/YearComparisonTab";
+import { TaxTab } from "@/components/dashboard/TaxTab";
 
 function DashboardContent() {
   const { profile, isPro } = useAuth();
@@ -327,6 +328,10 @@ function DashboardContent() {
               receipts={receipts}
               availableYears={availableYears}
             />
+          )}
+
+          {activeTab === "tax" && (
+            <TaxTab receipts={dateFilteredReceipts} timeMode={timeMode} />
           )}
 
           {activeTab === "receipts" && (
