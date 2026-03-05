@@ -539,20 +539,20 @@ function SettingsContent() {
                   <div className="grid grid-cols-2 gap-4 pt-1">
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <p className="text-2xl font-bold text-gray-900">
-                        {referralStats.count}
+                        {referralStats!.count}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {referralStats.count === 1
+                        {referralStats!.count === 1
                           ? "amigo convidado"
                           : "amigos convidados"}
                       </p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-lg">
                       <p className="text-2xl font-bold text-green-700">
-                        {referralStats.monthsEarned}
+                        {referralStats!.monthsEarned}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {referralStats.monthsEarned === 1
+                        {referralStats!.monthsEarned === 1
                           ? "mês ganho"
                           : "meses ganhos"}
                       </p>
