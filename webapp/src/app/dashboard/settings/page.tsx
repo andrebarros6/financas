@@ -13,6 +13,9 @@ function SettingsContent() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
+  const [deleteAccountError, setDeleteAccountError] = useState<string | null>(null);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">(
     "monthly"
   );
@@ -121,6 +124,31 @@ function SettingsContent() {
       );
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    setDeleteAccountError(null);
+
+    try {
+      const response = await fetch("/api/account", {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao eliminar conta");
+      }
+
+      // Sign out and redirect to home after successful deletion
+      await signOut();
+      router.push("/");
+    } catch (err) {
+      setDeleteAccountError(
+        err instanceof Error ? err.message : "Erro ao eliminar conta"
+      );
+      setIsDeletingAccount(false);
     }
   };
 
@@ -480,7 +508,8 @@ function SettingsContent() {
           </div>
         </div>
 
-        {/* Referral Program */}
+        {/* Referral Program — hidden until feature is ready */}
+        {false && (
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
@@ -536,6 +565,7 @@ function SettingsContent() {
             )}
           </div>
         </div>
+        )}
 
         {/* Data Management */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
@@ -616,7 +646,7 @@ function SettingsContent() {
               Ações da Conta
             </h2>
           </div>
-          <div className="px-6 py-4">
+          <div className="px-6 py-4 space-y-6">
             <Button
               variant="outline"
               onClick={signOut}
@@ -624,6 +654,61 @@ function SettingsContent() {
             >
               Terminar sessão
             </Button>
+
+            <div className="border-t border-gray-200 pt-6">
+              <h3 className="text-sm font-medium text-gray-900 mb-1">
+                Eliminar conta
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Elimina permanentemente a sua conta e todos os dados associados,
+                incluindo recibos e subscrição. Esta ação não pode ser revertida.
+              </p>
+
+              {deleteAccountError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800">{deleteAccountError}</p>
+                </div>
+              )}
+
+              {!showDeleteAccountConfirm ? (
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteAccountConfirm(true)}
+                  className="text-red-600 border-red-300 hover:bg-red-50"
+                >
+                  Eliminar conta
+                </Button>
+              ) : (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm font-medium text-red-900 mb-1">
+                    Tem a certeza? Esta ação é irreversível.
+                  </p>
+                  <p className="text-sm text-red-700 mb-3">
+                    Todos os seus recibos e dados serão eliminados e a sua
+                    subscrição será cancelada imediatamente.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={handleDeleteAccount}
+                      loading={isDeletingAccount}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Sim, eliminar conta
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowDeleteAccountConfirm(false)}
+                      disabled={isDeletingAccount}
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
