@@ -44,6 +44,12 @@ export default function Home() {
               FAQ
             </a>
             <a
+              href="/blog"
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Blog
+            </a>
+            <a
               href="/login"
               className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
             >

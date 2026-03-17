@@ -20,6 +20,10 @@ export function LandingFooter() {
               <span className="text-sm text-gray-600">Painel dos Recibos</span>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-gray-500">
+              <Link href="/blog" className="hover:text-gray-700 transition-colors">
+                Blog
+              </Link>
+              <span className="hidden sm:inline text-gray-300">·</span>
               <Link href="/cookies" className="hover:text-gray-700 transition-colors">
                 Política de Cookies
               </Link>
