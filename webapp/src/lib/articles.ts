@@ -2,7 +2,9 @@ import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 import { remark } from "remark";
-import html from "remark-html";
+import remarkGfm from "remark-gfm";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
 
 const articlesDirectory = path.join(process.cwd(), "content/articles");
 
@@ -44,7 +46,11 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
 
-  const processed = await remark().use(html).process(content);
+  const processed = await remark()
+    .use(remarkGfm)
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .process(content);
   const contentHtml = processed.toString();
 
   return {

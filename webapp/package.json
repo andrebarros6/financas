@@ -14,14 +14,18 @@
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.3",
+    "@tailwindcss/typography": "^0.5.19",
     "chart.js": "^4.5.1",
     "gray-matter": "^4.0.3",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "19.2.3",
+    "rehype-stringify": "^10.0.1",
     "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1",
     "remark-html": "^16.0.1",
+    "remark-rehype": "^11.1.2",
     "resend": "^6.9.1",
     "stripe": "^17.7.0"
   },
